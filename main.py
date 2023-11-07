@@ -5,8 +5,8 @@ import math
 import pygame_gui
 
 
- # initialize with a default value
- # initialize with default value
+p1 = str # initialize with a default value
+p2 = str # initialize with default value
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255,139,148)
@@ -254,7 +254,7 @@ def screen2():
                         if winning_move(board, 2):
                             turn_count=str(turn_count_p2)
                             winner = p2
-                            label = myfont.render(p2 + " wins!!", 1, colour_p2)
+                            label = myfont.render(" wins!!", 1, colour_p2)
                             screen.blit(label, (100, 10))
                             game_over = True
 
@@ -296,7 +296,7 @@ def screen2():
 
 
 def screen3():
-    text1 = font.render(winner + ' wins in '+turn_count+' turns', True, 'white')
+    text1 = font.render( ' wins in '+turn_count+' turns', True, 'white')
     screen.blit(text1, (225, 150))
     text2 = font.render('CONGRATULATIONS!!', True, 'white')
     screen.blit(text2, (235, 175))
