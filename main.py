@@ -233,7 +233,7 @@ def screen2():
                             turn_count=str(turn_count_p1)
                             global winner
                             winner = p1
-                            label = myfont.render(" wins!!", 1, colour_p1)
+                            label = myfont.render( " wins!!", 1, colour_p1)
                             screen.blit(label, (100, 10))
                             game_over = True
 
@@ -254,7 +254,7 @@ def screen2():
                         if winning_move(board, 2):
                             turn_count=str(turn_count_p2)
                             winner = p2
-                            label = myfont.render(" wins!!", 1, colour_p2)
+                            label = myfont.render( " wins!!", 1, colour_p2)
                             screen.blit(label, (100, 10))
                             game_over = True
 
