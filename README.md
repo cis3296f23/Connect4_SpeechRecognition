@@ -6,7 +6,7 @@ Follow this project board to know the latest status of the project: ([https://gi
 
 # How to build
 - Use PyCharm Professional as your IDE
-- Clone the repository: https://github.com/RanaGaballah/ConnectFour_Python_With_GUI.git
+- Clone the repository: https://github.com/cis3296f23/Connect4_SpeechRecognition.git
 - Download the following packages
   - pygame
   - numpy
