@@ -23,7 +23,7 @@ turn_count_p2=0
 remaining_count_p1=21
 remaining_count_p2=21
 CLOCK = pygame.time.Clock()
-
+winnername = str
 
 def create_board():
     board = np.zeros((ROW_COUNT, COLUMN_COUNT))
@@ -49,33 +49,35 @@ def print_board(board):
 
 
 def winning_move(board, piece):
+    global winner  # Declare winner as a global variable
     # Check horizontal locations for win
     for c in range(COLUMN_COUNT - 3):
         for r in range(ROW_COUNT):
-            if board[r][c] == piece and board[r][c + 1] == piece and board[r][c + 2] == piece and board[r][
-                c + 3] == piece:
+            if board[r][c] == piece and board[r][c + 1] == piece and board[r][c + 2] == piece and board[r][c + 3] == piece:
+                winner = p1 if piece == 1 else p2
                 return True
 
     # Check vertical locations for win
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT - 3):
-            if board[r][c] == piece and board[r + 1][c] == piece and board[r + 2][c] == piece and board[r + 3][
-                c] == piece:
+            if board[r][c] == piece and board[r + 1][c] == piece and board[r + 2][c] == piece and board[r + 3][c] == piece:
+                winner = p1 if piece == 1 else p2
                 return True
 
-    # Check positively sloped diaganols
+    # Check positively sloped diagonals
     for c in range(COLUMN_COUNT - 3):
         for r in range(ROW_COUNT - 3):
-            if board[r][c] == piece and board[r + 1][c + 1] == piece and board[r + 2][c + 2] == piece and board[r + 3][
-                c + 3] == piece:
+            if board[r][c] == piece and board[r + 1][c + 1] == piece and board[r + 2][c + 2] == piece and board[r + 3][c + 3] == piece:
+                winner = p1 if piece == 1 else p2
                 return True
 
-    # Check negatively sloped diaganols
+    # Check negatively sloped diagonals
     for c in range(COLUMN_COUNT - 3):
         for r in range(3, ROW_COUNT):
-            if board[r][c] == piece and board[r - 1][c + 1] == piece and board[r - 2][c + 2] == piece and board[r - 3][
-                c + 3] == piece:
+            if board[r][c] == piece and board[r - 1][c + 1] == piece and board[r - 2][c + 2] == piece and board[r - 3][c + 3] == piece:
+                winner = p1 if piece == 1 else p2
                 return True
+
 
 
 def draw_board(board):
@@ -219,6 +221,8 @@ def screen2():
                     global turn_count_p1
                     turn_count_p1+=1
                     global remaining_count_p1
+                    global winnername
+                    global winnercolor
                     remaining_count_p1 -=1
                     print(remaining_count_p1)
                     posx = event.pos[0]
@@ -233,7 +237,9 @@ def screen2():
                             turn_count=str(turn_count_p1)
                             global winner
                             winner = p1
-                            label = myfont.render( " wins!!", 1, colour_p1)
+                            winnername = "Player 1"
+                            winnercolor = colour_p1
+                            label = myfont.render(" wins!!", 1, colour_p1)
                             screen.blit(label, (100, 10))
                             game_over = True
 
@@ -242,6 +248,7 @@ def screen2():
                     global turn_count_p2
                     turn_count_p2 += 1
                     global remaining_count_p2
+
                     remaining_count_p2-=1
                     print(remaining_count_p2)
                     posx = event.pos[0]
@@ -254,7 +261,9 @@ def screen2():
                         if winning_move(board, 2):
                             turn_count=str(turn_count_p2)
                             winner = p2
-                            label = myfont.render( " wins!!", 1, colour_p2)
+                            winnercolor = colour_p2
+                            winnername = "Player 2"
+                            label = myfont.render(" wins!!", 1, colour_p2)
                             screen.blit(label, (100, 10))
                             game_over = True
 
@@ -296,16 +305,21 @@ def screen2():
 
 
 def screen3():
-    text1 = font.render( ' wins in '+turn_count+' turns', True, 'white')
+    global winnername
+    global winnercolor
+    global winner  # Declare winner as a global variable if it's not already passed as an argument
+    text1 = font.render(winnername + ' wins!', True, winnercolor) # Ensure winner is a string
     screen.blit(text1, (225, 150))
     text2 = font.render('CONGRATULATIONS!!', True, 'white')
     screen.blit(text2, (235, 175))
 
+    # Play again button
     menu_btn_3 = pygame.draw.rect(screen, 'light gray', [230, 400, 260, 60], 0, 5)
     pygame.draw.rect(screen, 'dark gray', [230, 400, 260, 60], 5, 5)
     text = font.render('Play again', True, 'black')
     screen.blit(text, (300, 418))
 
+    # QUIT button
     menu_btn_quit = pygame.draw.rect(screen, 'light gray', [230, 300, 260, 60], 0, 5)
     pygame.draw.rect(screen, 'dark gray', [230, 300, 260, 60], 5, 5)
     text = font.render('QUIT', True, 'black')
@@ -313,6 +327,7 @@ def screen3():
     if menu_btn_quit.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
         pygame.quit()
         sys.exit()
+
 
     #if menu_btn_3.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
         #screen1()
@@ -336,4 +351,3 @@ while run:
 
     pygame.display.flip()
 pygame.quit()
-
