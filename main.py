@@ -128,6 +128,7 @@ TEXT_INPUT2 = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350
 
 
 def screen1():
+    selected_colors = set()
     while True:
         UI_REFRESH_RATE = CLOCK.tick(60) / 1000
         for event in pygame.event.get():
@@ -149,39 +150,54 @@ def screen1():
         red_p1 = pygame.draw.rect(screen, RED, [560, 90, 100, 20], 0, 5)
         if red_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p1
-            colour_p1=RED
+            if RED not in selected_colors:
+                colour_p1 = RED
+                selected_colors.add(RED)
         yellow_p1 = pygame.draw.rect(screen, YELLOW, [560, 110, 100, 20], 0, 5)
         if yellow_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p1 = YELLOW
+            if YELLOW not in selected_colors:
+                colour_p1 = YELLOW
+                selected_colors.add(YELLOW)
         blue_p1 = pygame.draw.rect(screen, BLUE, [560, 130, 100, 20], 0, 5)
         if blue_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p1 = BLUE
+            if BLUE not in selected_colors:
+                colour_p1 = BLUE
+                selected_colors.add(BLUE)
         green_p1 = pygame.draw.rect(screen, GREEN, [560, 150, 100, 20], 0, 5)
         if green_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p1 = GREEN
+            if GREEN not in selected_colors:
+                colour_p1 = GREEN
+                selected_colors.add(GREEN)
 
         red_p2 = pygame.draw.rect(screen, RED, [560, 200, 100, 20], 0, 5)
         if red_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p2
-            colour_p2 = RED
+            if RED not in selected_colors:
+                colour_p2 = RED
+                selected_colors.add(RED)
         yellow_p2 = pygame.draw.rect(screen, YELLOW, [560, 220, 100, 20], 0, 5)
         if yellow_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p2 = YELLOW
+            if YELLOW not in selected_colors:
+                colour_p2 = YELLOW
+                selected_colors.add(YELLOW)
         blue_p2 = pygame.draw.rect(screen, BLUE, [560, 240, 100, 20], 0, 5)
         if blue_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p2 = BLUE
+            if BLUE not in selected_colors:
+                colour_p2 = BLUE
+                selected_colors.add(BLUE)
         green_p2 = pygame.draw.rect(screen, GREEN, [560, 260, 100, 20], 0, 5)
         if green_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p2 = GREEN
-
+            if GREEN not in selected_colors:
+                colour_p2 = GREEN
+                selected_colors.add(GREEN)
 
         player1_text = font.render('Enter Player 1 name: ', True, colour_p1)
         screen.blit(player1_text, (100, 117))
-        player1_enter = font.render('(and press enter) ', True, colour_p1)
+        player1_enter = font.render('(and press ENTER) ', True, colour_p1)
         screen.blit(player1_enter, (100, 147))
         player2_text = font.render('Enter Player 2 name: ', True, colour_p2)
         screen.blit(player2_text, (100, 217))
-        player2_enter = font.render('(and press enter) ', True, colour_p2)
+        player2_enter = font.render('(and press ENTER) ', True, colour_p2)
         screen.blit(player2_enter, (100, 247))
         menu_btn = pygame.draw.rect(screen, 'light gray', [230, 300, 260, 60], 0, 5)
         pygame.draw.rect(screen, 'dark gray', [230, 300, 260, 60], 5, 5)
@@ -237,9 +253,8 @@ def screen2():
                             turn_count=str(turn_count_p1)
                             global winner
                             winner = p1
-                            winnername = "Player 1"
                             winnercolor = colour_p1
-                            label = myfont.render(" wins!!", 1, colour_p1)
+                            label = myfont.render(p1 + " wins!!", 1, colour_p1)
                             screen.blit(label, (100, 10))
                             game_over = True
 
@@ -262,8 +277,7 @@ def screen2():
                             turn_count=str(turn_count_p2)
                             winner = p2
                             winnercolor = colour_p2
-                            winnername = "Player 2"
-                            label = myfont.render(" wins!!", 1, colour_p2)
+                            label = myfont.render(p2 + " wins!!", 1, colour_p2)
                             screen.blit(label, (100, 10))
                             game_over = True
 
@@ -305,10 +319,9 @@ def screen2():
 
 
 def screen3():
-    global winnername
     global winnercolor
     global winner  # Declare winner as a global variable if it's not already passed as an argument
-    text1 = font.render(winnername + ' wins!', True, winnercolor) # Ensure winner is a string
+    text1 = font.render(winner + ' wins!', True, winnercolor) # Ensure winner is a string
     screen.blit(text1, (225, 150))
     text2 = font.render('CONGRATULATIONS!!', True, 'white')
     screen.blit(text2, (235, 175))
