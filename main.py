@@ -5,8 +5,8 @@ import math
 import pygame_gui
 
 
-p1 = str # initialize with a default value
-p2 = str # initialize with default value
+p1 = "Player 1" # initialize with a default value
+p2 = "Player 2" # initialize with default value
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255,139,148)
@@ -150,46 +150,46 @@ def screen1():
         red_p1 = pygame.draw.rect(screen, RED, [560, 90, 100, 20], 0, 5)
         if red_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p1
-            if RED not in selected_colors:
+            if 'p1' in selected_colors and selected_colors['p1'] != RED:
+                selected_colors['p1'] = RED
                 colour_p1 = RED
-                selected_colors.add(RED)
         yellow_p1 = pygame.draw.rect(screen, YELLOW, [560, 110, 100, 20], 0, 5)
         if yellow_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if YELLOW not in selected_colors:
+            if 'p1' in selected_colors and selected_colors['p1'] != YELLOW:
+                selected_colors['p1'] = YELLOW
                 colour_p1 = YELLOW
-                selected_colors.add(YELLOW)
         blue_p1 = pygame.draw.rect(screen, BLUE, [560, 130, 100, 20], 0, 5)
         if blue_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if BLUE not in selected_colors:
+            if 'p1' in selected_colors and selected_colors['p1'] != BLUE:
+                selected_colors['p1'] = BLUE
                 colour_p1 = BLUE
-                selected_colors.add(BLUE)
         green_p1 = pygame.draw.rect(screen, GREEN, [560, 150, 100, 20], 0, 5)
         if green_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if GREEN not in selected_colors:
+            if 'p1' in selected_colors and selected_colors['p1'] != GREEN:
+                selected_colors['p1'] = GREEN
                 colour_p1 = GREEN
-                selected_colors.add(GREEN)
 
         red_p2 = pygame.draw.rect(screen, RED, [560, 200, 100, 20], 0, 5)
         if red_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p2
-            if RED not in selected_colors:
+            if 'p2' in selected_colors and selected_colors['p2'] != RED:
+                selected_colors['p2'] = RED
                 colour_p2 = RED
-                selected_colors.add(RED)
         yellow_p2 = pygame.draw.rect(screen, YELLOW, [560, 220, 100, 20], 0, 5)
         if yellow_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if YELLOW not in selected_colors:
+            if 'p2' in selected_colors and selected_colors['p2'] != YELLOW:
+                selected_colors['p2'] = YELLOW
                 colour_p2 = YELLOW
-                selected_colors.add(YELLOW)
         blue_p2 = pygame.draw.rect(screen, BLUE, [560, 240, 100, 20], 0, 5)
         if blue_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if BLUE not in selected_colors:
+            if 'p2' in selected_colors and selected_colors['p2'] != BLUE:
+                selected_colors['p2'] = BLUE
                 colour_p2 = BLUE
-                selected_colors.add(BLUE)
         green_p2 = pygame.draw.rect(screen, GREEN, [560, 260, 100, 20], 0, 5)
         if green_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if GREEN not in selected_colors:
+            if 'p2' in selected_colors and selected_colors['p2'] != GREEN:
+                selected_colors['p2'] = GREEN
                 colour_p2 = GREEN
-                selected_colors.add(GREEN)
 
         player1_text = font.render('Enter Player 1 name: ', True, colour_p1)
         screen.blit(player1_text, (100, 117))
