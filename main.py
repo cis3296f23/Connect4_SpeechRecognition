@@ -342,10 +342,10 @@ def screen3():
         sys.exit()
 
 
-    #if menu_btn_3.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-        #screen1()
-        #return 1
+    if menu_btn_3.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+        return 1
 
+    return 3
 
 run = True
 while run:
