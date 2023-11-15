@@ -343,6 +343,17 @@ def screen3():
 
 
     if menu_btn_3.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+        global board
+        global game_over
+        global turn
+        global remaining_count_p1
+        global remaining_count_p2
+        board = create_board()
+        game_over = False
+        turn = 0
+        remaining_count_p1 = 21
+        remaining_count_p2 = 21
+        selected_colors = {'p1': RED, 'p2': YELLOW}
         return 1
 
     return 3
