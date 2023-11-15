@@ -128,7 +128,7 @@ TEXT_INPUT2 = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350
 
 
 def screen1():
-    selected_colors = set()
+    selected_colors = {'p1': RED, 'p2': YELLOW}
     while True:
         UI_REFRESH_RATE = CLOCK.tick(60) / 1000
         for event in pygame.event.get():
@@ -150,44 +150,44 @@ def screen1():
         red_p1 = pygame.draw.rect(screen, RED, [560, 90, 100, 20], 0, 5)
         if red_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p1
-            if 'p1' in selected_colors and selected_colors['p1'] != RED:
+            if selected_colors['p2'] != RED:
                 selected_colors['p1'] = RED
                 colour_p1 = RED
         yellow_p1 = pygame.draw.rect(screen, YELLOW, [560, 110, 100, 20], 0, 5)
         if yellow_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if 'p1' in selected_colors and selected_colors['p1'] != YELLOW:
+            if selected_colors['p2'] != YELLOW:
                 selected_colors['p1'] = YELLOW
                 colour_p1 = YELLOW
         blue_p1 = pygame.draw.rect(screen, BLUE, [560, 130, 100, 20], 0, 5)
         if blue_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if 'p1' in selected_colors and selected_colors['p1'] != BLUE:
+            if selected_colors['p2'] != BLUE:
                 selected_colors['p1'] = BLUE
                 colour_p1 = BLUE
         green_p1 = pygame.draw.rect(screen, GREEN, [560, 150, 100, 20], 0, 5)
         if green_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if 'p1' in selected_colors and selected_colors['p1'] != GREEN:
+            if selected_colors['p2'] != GREEN:
                 selected_colors['p1'] = GREEN
                 colour_p1 = GREEN
 
         red_p2 = pygame.draw.rect(screen, RED, [560, 200, 100, 20], 0, 5)
         if red_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p2
-            if 'p2' in selected_colors and selected_colors['p2'] != RED:
+            if selected_colors['p1'] != RED:
                 selected_colors['p2'] = RED
                 colour_p2 = RED
         yellow_p2 = pygame.draw.rect(screen, YELLOW, [560, 220, 100, 20], 0, 5)
         if yellow_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if 'p2' in selected_colors and selected_colors['p2'] != YELLOW:
+            if selected_colors['p1'] != YELLOW:
                 selected_colors['p2'] = YELLOW
                 colour_p2 = YELLOW
         blue_p2 = pygame.draw.rect(screen, BLUE, [560, 240, 100, 20], 0, 5)
         if blue_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if 'p2' in selected_colors and selected_colors['p2'] != BLUE:
+            if selected_colors['p1'] != BLUE:
                 selected_colors['p2'] = BLUE
                 colour_p2 = BLUE
         green_p2 = pygame.draw.rect(screen, GREEN, [560, 260, 100, 20], 0, 5)
         if green_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            if 'p2' in selected_colors and selected_colors['p2'] != GREEN:
+            if selected_colors['p1'] != GREEN:
                 selected_colors['p2'] = GREEN
                 colour_p2 = GREEN
 
