@@ -4,26 +4,28 @@ import sys
 import math
 import pygame_gui
 
-
-p1 = str # initialize with a default value
-p2 = str # initialize with default value
+p1 = "Player 1"  # initialize with a default value
+p2 = "Player 2"  # initialize with default value
+dif = "easy"
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-RED = (255,139,148)
+RED = (255, 139, 148)
 YELLOW = (250, 238, 7)
-BLUE=(64,144,245)
-GREEN=(124,252,0)
-colour_p1=RED
-colour_p2=YELLOW
+BLUE = (64, 144, 245)
+GREEN = (124, 252, 0)
+colour_p1 = RED
+colour_p1_sig = RED
+colour_p2 = YELLOW
 ROW_COUNT = 6
 COLUMN_COUNT = 7
 SQUARESIZE = 100
-turn_count_p1=0
-turn_count_p2=0
-remaining_count_p1=21
-remaining_count_p2=21
+turn_count_p1 = 0
+turn_count_p2 = 0
+remaining_count_p1 = 21
+remaining_count_p2 = 21
 CLOCK = pygame.time.Clock()
 winnername = str
+
 
 def create_board():
     board = np.zeros((ROW_COUNT, COLUMN_COUNT))
@@ -53,31 +55,34 @@ def winning_move(board, piece):
     # Check horizontal locations for win
     for c in range(COLUMN_COUNT - 3):
         for r in range(ROW_COUNT):
-            if board[r][c] == piece and board[r][c + 1] == piece and board[r][c + 2] == piece and board[r][c + 3] == piece:
+            if board[r][c] == piece and board[r][c + 1] == piece and board[r][c + 2] == piece and board[r][
+                c + 3] == piece:
                 winner = p1 if piece == 1 else p2
                 return True
 
     # Check vertical locations for win
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT - 3):
-            if board[r][c] == piece and board[r + 1][c] == piece and board[r + 2][c] == piece and board[r + 3][c] == piece:
+            if board[r][c] == piece and board[r + 1][c] == piece and board[r + 2][c] == piece and board[r + 3][
+                c] == piece:
                 winner = p1 if piece == 1 else p2
                 return True
 
     # Check positively sloped diagonals
     for c in range(COLUMN_COUNT - 3):
         for r in range(ROW_COUNT - 3):
-            if board[r][c] == piece and board[r + 1][c + 1] == piece and board[r + 2][c + 2] == piece and board[r + 3][c + 3] == piece:
+            if board[r][c] == piece and board[r + 1][c + 1] == piece and board[r + 2][c + 2] == piece and board[r + 3][
+                c + 3] == piece:
                 winner = p1 if piece == 1 else p2
                 return True
 
     # Check negatively sloped diagonals
     for c in range(COLUMN_COUNT - 3):
         for r in range(3, ROW_COUNT):
-            if board[r][c] == piece and board[r - 1][c + 1] == piece and board[r - 2][c + 2] == piece and board[r - 3][c + 3] == piece:
+            if board[r][c] == piece and board[r - 1][c + 1] == piece and board[r - 2][c + 2] == piece and board[r - 3][
+                c + 3] == piece:
                 winner = p1 if piece == 1 else p2
                 return True
-
 
 
 def draw_board(board):
@@ -85,18 +90,18 @@ def draw_board(board):
         for r in range(ROW_COUNT):
             pygame.draw.rect(screen, WHITE, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
             pygame.draw.circle(screen, BLACK, (
-            int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+                int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
 
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
             if board[r][c] == 1:
                 pygame.draw.circle(screen, colour_p1, (
-                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+                    int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
             elif board[r][c] == 2:
                 pygame.draw.circle(screen, colour_p2, (
-                int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-    #pygame.draw.circle(screen, RED, (600, 25), RADIUS/2)
-    #pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
+                    int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
+    # pygame.draw.circle(screen, RED, (600, 25), RADIUS/2)
+    # pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
     pygame.display.update()
 
 
@@ -117,7 +122,7 @@ pygame.display.set_caption('Connect4')
 fps = 60
 
 timer = pygame.time.Clock()
-screen_number = 1
+screen_number = 0
 font = pygame.font.Font('freesansbold.ttf', 24)
 
 MANAGER = pygame_gui.UIManager((width, height))
@@ -127,7 +132,45 @@ TEXT_INPUT2 = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350
                                                   object_id="#second_text_entry")
 
 
+def screen0():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        screen.fill('black')
+
+        text = font.render("Choose an option:", True, 'white')
+        text_rect = text.get_rect(center=(width // 2, height // 2 - 100))
+        screen.blit(text, text_rect)
+
+        # Single Player button
+        menu_btn_single_player = pygame.draw.rect(screen, 'light gray', [width // 2 - 130, height // 2, 260, 60], 0, 5)
+        pygame.draw.rect(screen, 'dark gray', [width // 2 - 130, height // 2, 260, 60], 5, 5)
+        text_single_player = font.render('Single Player', True, 'black')
+        text_single_player_rect = text_single_player.get_rect(center=menu_btn_single_player.center)
+        screen.blit(text_single_player, text_single_player_rect)
+
+        # Multiplayer button
+        menu_btn_multiplayer = pygame.draw.rect(screen, 'light gray', [width // 2 - 130, height // 2 + 100, 260, 60], 0, 5)
+        pygame.draw.rect(screen, 'dark gray', [width // 2 - 130, height // 2 + 100, 260, 60], 5, 5)
+        text_multiplayer = font.render('Multiplayer', True, 'black')
+        text_multiplayer_rect = text_multiplayer.get_rect(center=menu_btn_multiplayer.center)
+        screen.blit(text_multiplayer, text_multiplayer_rect)
+
+        pygame.display.flip()
+
+        if menu_btn_single_player.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            return 4  # Single Player option selected
+        elif menu_btn_multiplayer.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            return 1  # Multiplayer option selected
+
+        pygame.display.update()
+
+
 def screen1():
+    selected_colors = {'p1': RED, 'p2': YELLOW}
     while True:
         UI_REFRESH_RATE = CLOCK.tick(60) / 1000
         for event in pygame.event.get():
@@ -149,39 +192,54 @@ def screen1():
         red_p1 = pygame.draw.rect(screen, RED, [560, 90, 100, 20], 0, 5)
         if red_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p1
-            colour_p1=RED
+            if selected_colors['p2'] != RED:
+                selected_colors['p1'] = RED
+                colour_p1 = RED
         yellow_p1 = pygame.draw.rect(screen, YELLOW, [560, 110, 100, 20], 0, 5)
         if yellow_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p1 = YELLOW
+            if selected_colors['p2'] != YELLOW:
+                selected_colors['p1'] = YELLOW
+                colour_p1 = YELLOW
         blue_p1 = pygame.draw.rect(screen, BLUE, [560, 130, 100, 20], 0, 5)
         if blue_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p1 = BLUE
+            if selected_colors['p2'] != BLUE:
+                selected_colors['p1'] = BLUE
+                colour_p1 = BLUE
         green_p1 = pygame.draw.rect(screen, GREEN, [560, 150, 100, 20], 0, 5)
         if green_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p1 = GREEN
+            if selected_colors['p2'] != GREEN:
+                selected_colors['p1'] = GREEN
+                colour_p1 = GREEN
 
         red_p2 = pygame.draw.rect(screen, RED, [560, 200, 100, 20], 0, 5)
         if red_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p2
-            colour_p2 = RED
+            if selected_colors['p1'] != RED:
+                selected_colors['p2'] = RED
+                colour_p2 = RED
         yellow_p2 = pygame.draw.rect(screen, YELLOW, [560, 220, 100, 20], 0, 5)
         if yellow_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p2 = YELLOW
+            if selected_colors['p1'] != YELLOW:
+                selected_colors['p2'] = YELLOW
+                colour_p2 = YELLOW
         blue_p2 = pygame.draw.rect(screen, BLUE, [560, 240, 100, 20], 0, 5)
         if blue_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p2 = BLUE
+            if selected_colors['p1'] != BLUE:
+                selected_colors['p2'] = BLUE
+                colour_p2 = BLUE
         green_p2 = pygame.draw.rect(screen, GREEN, [560, 260, 100, 20], 0, 5)
         if green_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p2 = GREEN
-
+            if selected_colors['p1'] != GREEN:
+                selected_colors['p2'] = GREEN
+                colour_p2 = GREEN
 
         player1_text = font.render('Enter Player 1 name: ', True, colour_p1)
         screen.blit(player1_text, (100, 117))
-        player1_enter = font.render('(and press enter) ', True, colour_p1)
+        player1_enter = font.render('(and press ENTER) ', True, colour_p1)
         screen.blit(player1_enter, (100, 147))
         player2_text = font.render('Enter Player 2 name: ', True, colour_p2)
         screen.blit(player2_text, (100, 217))
-        player2_enter = font.render('(and press enter) ', True, colour_p2)
+        player2_enter = font.render('(and press ENTER) ', True, colour_p2)
         screen.blit(player2_enter, (100, 247))
         menu_btn = pygame.draw.rect(screen, 'light gray', [230, 300, 260, 60], 0, 5)
         pygame.draw.rect(screen, 'dark gray', [230, 300, 260, 60], 5, 5)
@@ -208,10 +266,8 @@ def screen2():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            #pygame.draw.circle(screen, RED, (600, 25), RADIUS / 2)
-            #pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
-
-
+            # pygame.draw.circle(screen, RED, (600, 25), RADIUS / 2)
+            # pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
@@ -219,11 +275,11 @@ def screen2():
                 # Ask for Player 1 Input
                 if turn == 0:
                     global turn_count_p1
-                    turn_count_p1+=1
+                    turn_count_p1 += 1
                     global remaining_count_p1
                     global winnername
                     global winnercolor
-                    remaining_count_p1 -=1
+                    remaining_count_p1 -= 1
                     print(remaining_count_p1)
                     posx = event.pos[0]
                     col = int(math.floor(posx / SQUARESIZE))
@@ -234,12 +290,11 @@ def screen2():
 
                         if winning_move(board, 1):
                             global turn_count
-                            turn_count=str(turn_count_p1)
+                            turn_count = str(turn_count_p1)
                             global winner
                             winner = p1
-                            winnername = "Player 1"
                             winnercolor = colour_p1
-                            label = myfont.render(" wins!!", 1, colour_p1)
+                            label = myfont.render(p1 + " wins!!", 1, colour_p1)
                             screen.blit(label, (100, 10))
                             game_over = True
 
@@ -249,7 +304,7 @@ def screen2():
                     turn_count_p2 += 1
                     global remaining_count_p2
 
-                    remaining_count_p2-=1
+                    remaining_count_p2 -= 1
                     print(remaining_count_p2)
                     posx = event.pos[0]
                     col = int(math.floor(posx / SQUARESIZE))
@@ -259,11 +314,10 @@ def screen2():
                         drop_piece(board, row, col, 2)
 
                         if winning_move(board, 2):
-                            turn_count=str(turn_count_p2)
+                            turn_count = str(turn_count_p2)
                             winner = p2
                             winnercolor = colour_p2
-                            winnername = "Player 2"
-                            label = myfont.render(" wins!!", 1, colour_p2)
+                            label = myfont.render(p2 + " wins!!", 1, colour_p2)
                             screen.blit(label, (100, 10))
                             game_over = True
 
@@ -305,10 +359,9 @@ def screen2():
 
 
 def screen3():
-    global winnername
     global winnercolor
     global winner  # Declare winner as a global variable if it's not already passed as an argument
-    text1 = font.render(winnername + ' wins!', True, winnercolor) # Ensure winner is a string
+    text1 = font.render(winner + ' wins!', True, winnercolor)  # Ensure winner is a string
     screen.blit(text1, (225, 150))
     text2 = font.render('CONGRATULATIONS!!', True, 'white')
     screen.blit(text2, (235, 175))
@@ -328,20 +381,120 @@ def screen3():
         pygame.quit()
         sys.exit()
 
+    if menu_btn_3.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+        global board
+        global game_over
+        global turn
+        global remaining_count_p1
+        global remaining_count_p2
+        board = create_board()
+        game_over = False
+        turn = 0
+        remaining_count_p1 = 21
+        remaining_count_p2 = 21
+        selected_colors = {'p1': RED, 'p2': YELLOW}
+        return 1
+    return 3
 
-    #if menu_btn_3.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-        #screen1()
-        #return 1
+
+def screen4():
+    selected_colors = {'p1': RED}
+    ai = True
+    while ai:
+        UI_REFRESH_RATE = CLOCK.tick(60) / 1000
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_object_id == "#first_text_entry":
+                global p1
+                p1 = event.text
+            if event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED and event.ui_object_id == "#second_text_entry":
+                global dif
+                dif = event.text
+
+            MANAGER.process_events(event)
+        MANAGER.update(UI_REFRESH_RATE)
+        screen.fill('black')
+        MANAGER.draw_ui(screen)
+
+        red_p1 = pygame.draw.rect(screen, RED, [560, 100, 100, 20], 0, 5)
+        if red_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            global colour_p1
+            colour_p1 = RED
+
+        yellow_p1 = pygame.draw.rect(screen, YELLOW, [560, 120, 100, 20], 0, 5)
+        if yellow_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            colour_p1 = YELLOW
+        blue_p1 = pygame.draw.rect(screen, BLUE, [560, 140, 100, 20], 0, 5)
+        if blue_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            colour_p1 = BLUE
+
+
+
+
+
+        player1_text = font.render('Enter Player 1 name: ', True, colour_p1)
+        screen.blit(player1_text, (100, 117))
+        player1_enter = font.render('(and press ENTER) ', True, colour_p1)
+        screen.blit(player1_enter, (100, 147))
+
+        dif_text = font.render('Enter difficulty level:', True, GREEN)
+        screen.blit(dif_text, (100, 217))
+        dif_text = font.render('(easy, medium, hard)', True, GREEN)
+        screen.blit(dif_text, (100, 247))
+        dif_enter = font.render('(and press ENTER) ', True, GREEN)
+        screen.blit(dif_enter, (100, 277))
+
+        menu_btn_scren5 = pygame.draw.rect(screen, 'light gray', [230, 350, 260, 60], 0, 5)
+        pygame.draw.rect(screen, 'dark gray', [230, 350, 260, 60], 5, 5)
+        text = font.render('Start game', True, 'black')
+        screen.blit(text, (295, 367))
+        if menu_btn_scren5.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            ai = False
+
+        pygame.display.update()
+    return 5
+def screen5():
+    screen.fill('black')
+    p1_text = font.render(f'Player 1: {p1}', True, 'white')
+    screen.blit(p1_text, (100, 100))
+    dif_text = font.render(f'Difficulty: {dif}', True, 'white')
+    screen.blit(dif_text, (100, 150))
+
+    # Add event handling within screen5
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+        # Assuming there's a button or condition to go back to the main menu
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:  # Let's say pressing ESCAPE key should go back
+                return 0  # Return to the main menu
+
+    menu_btn_back = pygame.draw.rect(screen, 'light gray', [230, 350, 260, 60], 0, 5)
+    pygame.draw.rect(screen, 'dark gray', [230, 350, 260, 60], 5, 5)
+    text_back = font.render('Back to Main Menu', True, 'black')
+    screen.blit(text_back, (255, 367))
+
+    pygame.display.flip()
+    return 5
 
 
 run = True
 while run:
     screen.fill('black')
     timer.tick(fps)
-    if screen_number == 1:
+    if screen_number == 0:
+        screen_number = screen0()
+    elif screen_number == 1:
         screen_number = screen1()
     elif screen_number == 2:
         screen_number = screen2()
+    elif screen_number == 4:
+        screen_number = screen4()
+    elif screen_number == 5:
+        screen_number = screen5()
     else:
         screen_number = screen3()
 
@@ -350,4 +503,5 @@ while run:
             run = False
 
     pygame.display.flip()
+
 pygame.quit()
