@@ -25,6 +25,14 @@ remaining_count_p1=21
 remaining_count_p2=21
 CLOCK = pygame.time.Clock()
 winnername = str
+connect4_positions = ["Column 1", "Column 2", "Column 3", "Column 4", "Column 5", "Column 6", "Column 7",
+                      "Drop in column 1", "Drop in column 2", "Drop in column 3", "Drop in column 4",
+                      "Drop in column 5", "Drop in column 6", "Drop in column 7", "Place it in column 1",
+                      "Place it in column 2", "Place it in column 3", "Place it in column 4",
+                      "Place it in column 5", "Place it in column 6", "Place it in column 7",
+                      "Put a chip in column 1", "Put a chip in column 2", "Put a chip in column 3",
+                      "Put a chip in column 4", "Put a chip in column 5", "Put a chip in column 6",
+                      "Put a chip in column 7"]
 
 def create_board():
     board = np.zeros((ROW_COUNT, COLUMN_COUNT))
@@ -209,8 +217,11 @@ def screen1():
 
         pygame.display.update()
 
-
 def screen2():
+    global remaining_count_p1
+    global remaining_count_p2
+    global player_turn
+
     # pygame.draw.rect(screen, 'black',[100,100,300,300])
     draw_board(board)
     pygame.display.update()
@@ -218,69 +229,45 @@ def screen2():
     myfont = pygame.font.SysFont("monospace", 75)
     game_over = False
     turn = 0
+    player_turn = 1  # Initialize player_turn
 
     while not game_over:
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            #pygame.draw.circle(screen, RED, (600, 25), RADIUS / 2)
-            #pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                # Voice recognition
+                move = speak_to_drop_chip()
+                if move is not None:
+                    # Check if the move is valid and update the game state
+                    move = move.lower()
+                    if move in connect4_positions:
+                        col = connect4_positions.index(move)
+                        if board[0][col] == 0:
+                            row = next((i for i in range(ROW_COUNT - 1, -1, -1) if board[i][col] == 0), None)
+                            if row is not None:
+                                drop_piece(board, row, col, player_turn)
+                                player_turn = 3 - player_turn  # Switch players (assuming 1 and 2 players)
+                                remaining_count_p1 -= 1 if player_turn == 1 else 0
+                                remaining_count_p2 -= 1 if player_turn == 2 else 0
+                                print_board(board)
+                                draw_board(board)
 
+                                # Check for a winner
+                                if winning_move(board, player_turn):
+                                    turn_count = turn_count_p1 if player_turn == 1 else turn_count_p2
+                                    winner = p1 if player_turn == 1 else p2
+                                    winnercolor = colour_p1 if player_turn == 1 else colour_p2
+                                    label = myfont.render(winner + " wins!!", 1, winnercolor)
+                                    screen.blit(label, (100, 10))
+                                    game_over = True
 
-
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
-                # print(event.pos)
-                # Ask for Player 1 Input
-                if turn == 0:
-                    global turn_count_p1
-                    turn_count_p1+=1
-                    global remaining_count_p1
-                    global winnername
-                    global winnercolor
-                    remaining_count_p1 -=1
-                    print(remaining_count_p1)
-                    posx = event.pos[0]
-                    col = int(math.floor(posx / SQUARESIZE))
-
-                    if is_valid_location(board, col):
-                        row = get_next_open_row(board, col)
-                        drop_piece(board, row, col, 1)
-
-                        if winning_move(board, 1):
-                            global turn_count
-                            turn_count=str(turn_count_p1)
-                            global winner
-                            winner = p1
-                            winnercolor = colour_p1
-                            label = myfont.render(p1 + " wins!!", 1, colour_p1)
-                            screen.blit(label, (100, 10))
-                            game_over = True
-
-                # # Ask for Player 2 Input
-                else:
-                    global turn_count_p2
-                    turn_count_p2 += 1
-                    global remaining_count_p2
-
-                    remaining_count_p2-=1
-                    print(remaining_count_p2)
-                    posx = event.pos[0]
-                    col = int(math.floor(posx / SQUARESIZE))
-
-                    if is_valid_location(board, col):
-                        row = get_next_open_row(board, col)
-                        drop_piece(board, row, col, 2)
-
-                        if winning_move(board, 2):
-                            turn_count=str(turn_count_p2)
-                            winner = p2
-                            winnercolor = colour_p2
-                            label = myfont.render(p2 + " wins!!", 1, colour_p2)
-                            screen.blit(label, (100, 10))
-                            game_over = True
+                                # Check for a tie
+                                elif all(board[0][col] != 0 for col in range(COLUMN_COUNT)):
+                                    label = myfont.render("It's a tie!", 1, WHITE)
+                                    screen.blit(label, (165, 10))
+                                    game_over = True
 
                 print_board(board)
                 draw_board(board)
@@ -359,6 +346,40 @@ def screen3():
 
     return 3
 
+def speak_to_drop_chip():
+    r = sr.Recognizer()
+    mic = sr.Microphone()
+
+    with mic as source:
+        r.adjust_for_ambient_noise(source)
+        try:
+            audio = r.listen(source)
+        except ValueError:
+            print("Please say it again")
+            audio = r.listen(source)
+        except IndexError:
+            print("Please say it again")
+            audio = r.listen(source)
+
+        result = r.recognize_google(audio)
+        print(result)
+
+        # Extract numbers from the recognized words
+        numbers = [word for word in result.split() if word.isdigit()]
+
+        if not numbers:
+            return None
+
+        # Check if any extracted number is a valid column number
+        for number in numbers:
+            if is_valid_column(number):
+                return number
+
+        return None
+
+def is_valid_column(number):
+    return 1 <= int(number) <= 7
+
 run = True
 while run:
     screen.fill('black')
@@ -376,3 +397,4 @@ while run:
 
     pygame.display.flip()
 pygame.quit()
+
