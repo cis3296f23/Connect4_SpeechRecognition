@@ -4,9 +4,9 @@ We are creating an innovative and engaging gaming experience by combining the ti
 # How to contribute
 Follow this project board to know the latest status of the project: ([https://github.com/orgs/cis3296f23/projects/109])
 
-### How to build
+# How to build
 - Use PyCharm Professional as your IDE
-- Clone the repository: https://github.com/RanaGaballah/ConnectFour_Python_With_GUI.git
+- Clone the repository: https://github.com/cis3296f23/Connect4_SpeechRecognition.git
 - Download the following packages
   - pygame
   - numpy

@@ -7,7 +7,7 @@ import random
 
 p1 = "Player 1"  # initialize with a default value
 p2 = "Player 2"  # initialize with default value
-dif = "easy"
+
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 139, 148)
@@ -363,6 +363,7 @@ def screen3():
     global winnercolor
     global winner  # Declare winner as a global variable if it's not already passed as an argument
     text1 = font.render(winner + ' wins!', True, winnercolor)  # Ensure winner is a string
+
     screen.blit(text1, (225, 150))
     text2 = font.render('CONGRATULATIONS!!', True, 'white')
     screen.blit(text2, (235, 175))
@@ -568,7 +569,6 @@ def screen5():
             return 3  # Transition to screen3
 
     return 5
-
 
 
 
