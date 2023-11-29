@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import math
 import pygame_gui
+import random
 
 p1 = "Player 1"  # initialize with a default value
 p2 = "Player 2"  # initialize with default value
@@ -299,7 +300,7 @@ def screen2():
                             game_over = True
 
                 # # Ask for Player 2 Input
-                else:
+                elif turn != 0:
                     global turn_count_p2
                     turn_count_p2 += 1
                     global remaining_count_p2
@@ -413,11 +414,13 @@ def screen4():
                 global dif
                 dif = event.text
 
+
             MANAGER.process_events(event)
         MANAGER.update(UI_REFRESH_RATE)
         screen.fill('black')
         MANAGER.draw_ui(screen)
-
+        global p2
+        p2 = "AI"
         red_p1 = pygame.draw.rect(screen, RED, [560, 100, 100, 20], 0, 5)
         if red_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p1
@@ -455,30 +458,118 @@ def screen4():
 
         pygame.display.update()
     return 5
+
+def computer_move(myfont):
+    global dif
+
+    if dif == "easy":
+        global turn_count_p2
+        turn_count_p2 += 1
+        global remaining_count_p2
+
+        remaining_count_p2 -= 1
+        print(remaining_count_p2)
+        col = random.randint(0, COLUMN_COUNT - 1)  # Generate a random column
+        if is_valid_location(board, col):
+            row = get_next_open_row(board, col)
+            drop_piece(board, row, col, 2)
+
+            if winning_move(board, 2):
+                global turn_count
+                turn_count = str(turn_count_p2)
+                global winner
+                winner = p2
+                winnercolor = colour_p2
+                label = myfont.render(p2 + " wins!!", 1, colour_p2)
+                screen.blit(label, (100, 10))
+                return True
+        return False
+
 def screen5():
-    screen.fill('black')
-    p1_text = font.render(f'Player 1: {p1}', True, 'white')
-    screen.blit(p1_text, (100, 100))
-    dif_text = font.render(f'Difficulty: {dif}', True, 'white')
-    screen.blit(dif_text, (100, 150))
+    draw_board(board)
+    pygame.display.update()
 
-    # Add event handling within screen5
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        # Assuming there's a button or condition to go back to the main menu
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:  # Let's say pressing ESCAPE key should go back
-                return 0  # Return to the main menu
+    myfont = pygame.font.SysFont("monospace", 75)
+    game_over = False
+    player1_turn = True  # Flag to track if it's Player 1's turn
 
-    menu_btn_back = pygame.draw.rect(screen, 'light gray', [230, 350, 260, 60], 0, 5)
-    pygame.draw.rect(screen, 'dark gray', [230, 350, 260, 60], 5, 5)
-    text_back = font.render('Back to Main Menu', True, 'black')
-    screen.blit(text_back, (255, 367))
+    while not game_over:
 
-    pygame.display.flip()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+            if not game_over:
+                if player1_turn:  # Player 1's turn
+                    if event.type == pygame.MOUSEBUTTONDOWN:
+                        pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
+                        posx = event.pos[0]
+                        col = int(math.floor(posx / SQUARESIZE))
+                        global remaining_count_p1
+
+                        remaining_count_p1 -= 1
+                        print(remaining_count_p1)
+                        if is_valid_location(board, col):
+                            row = get_next_open_row(board, col)
+                            drop_piece(board, row, col, 1)
+
+                            if winning_move(board, 1):
+                                global turn_count
+                                turn_count = str(turn_count_p1)
+                                global winner, winnercolor
+                                winner = p1
+                                winnercolor = colour_p1
+                                label = myfont.render(p1 + " wins!!", 1, colour_p1)
+                                screen.blit(label, (100, 10))
+                                game_over = True
+                            else:
+                                player1_turn = False  # Switch to Computer's turn
+                else:  # Computer's turn
+                    if not computer_move(myfont):
+                        print_board(board)
+                        draw_board(board)
+                        if winning_move(board, 2):
+                            turn_count = str(turn_count_p2)  # Update the turn count for the computer
+                            winner = p2
+                            winnercolor = colour_p2
+                            label = myfont.render(p2 + " wins!!", 1, colour_p2)
+                            screen.blit(label, (100, 10))
+                            game_over = True
+                        else:
+                            player1_turn = True  # Switch back to Player 1's turn
+
+            if event.type == pygame.MOUSEMOTION:
+                pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
+                posx = event.pos[0]
+                if player1_turn:
+                    pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
+                    pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
+                    text_rem = font.render('Remaining coins:', True, 'white')
+                    screen.blit(text_rem, (396, 13))
+                    text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
+                    screen.blit(text_rem_p1, (616, 15))
+                    text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
+                    screen.blit(text_rem_p1, (663, 15))
+                    pygame.draw.circle(screen, colour_p1, (posx, int(SQUARESIZE / 2)), RADIUS)
+                else:
+                    pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
+                    pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
+                    text_rem = font.render('Remaining coins:', True, 'white')
+                    screen.blit(text_rem, (396, 13))
+                    text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
+                    screen.blit(text_rem_p1, (616, 15))
+                    text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
+                    screen.blit(text_rem_p1, (663, 15))
+                    pygame.draw.circle(screen, colour_p2, (posx, int(SQUARESIZE / 2)), RADIUS)
+            pygame.display.update()
+
+        if game_over:
+            pygame.time.wait(100)  # Wait for a moment to display the victory message
+            return 3  # Transition to screen3
+
     return 5
+
+
 
 
 run = True
