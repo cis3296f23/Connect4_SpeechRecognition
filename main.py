@@ -3,6 +3,7 @@ import numpy as np
 import sys
 import math
 import pygame_gui
+import speech_recognition as sr
 
 
 p1 = "Player 1" # initialize with a default value
@@ -321,7 +322,7 @@ def screen2():
 def screen3():
     global winnercolor
     global winner  # Declare winner as a global variable if it's not already passed as an argument
-    text1 = font.render(winner + ' wins in ' + turn_count + ' turns!', True, winnercolor) # Ensure winner is a string
+    text1 = font.render(winner + ' wins!', True, winnercolor) # Ensure winner is a string
     screen.blit(text1, (225, 150))
     text2 = font.render('CONGRATULATIONS!!', True, 'white')
     screen.blit(text2, (235, 175))
