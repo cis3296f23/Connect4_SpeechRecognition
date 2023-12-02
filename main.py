@@ -28,6 +28,7 @@ CLOCK = pygame.time.Clock()
 winnername = str
 
 
+
 def create_board():
     board = np.zeros((ROW_COUNT, COLUMN_COUNT))
     return board
@@ -89,7 +90,7 @@ def winning_move(board, piece):
 def draw_board(board):
     for c in range(COLUMN_COUNT):
         for r in range(ROW_COUNT):
-            pygame.draw.rect(screen, WHITE, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
+            pygame.draw.rect(screen, BLUE, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
             pygame.draw.circle(screen, BLACK, (
                 int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
 
@@ -101,8 +102,6 @@ def draw_board(board):
             elif board[r][c] == 2:
                 pygame.draw.circle(screen, colour_p2, (
                     int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-    # pygame.draw.circle(screen, RED, (600, 25), RADIUS/2)
-    # pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
     pygame.display.update()
 
 
@@ -114,7 +113,7 @@ turn = 0
 pygame.init()
 
 width = (COLUMN_COUNT) * SQUARESIZE
-height = (ROW_COUNT) * SQUARESIZE
+height = (ROW_COUNT + 1) * SQUARESIZE
 
 RADIUS = int(SQUARESIZE / 2 - 5)
 
@@ -140,35 +139,47 @@ def screen0():
                 pygame.quit()
                 sys.exit()
 
-        screen.fill('black')
+        screen.fill('dark blue')  # Updated background color
 
-        text = font.render("Choose an option:", True, 'white')
-        text_rect = text.get_rect(center=(width // 2, height // 2 - 100))
-        screen.blit(text, text_rect)
+        # Title
+        title_font = pygame.font.SysFont("calibri", 100, True)  # Larger and bold font for the title
+        title_text = title_font.render("Connect4", True, 'gold')
+        title_rect = title_text.get_rect(center=(width // 2, height // 2 - 150))
+        screen.blit(title_text, title_rect)
 
         # Single Player button
-        menu_btn_single_player = pygame.draw.rect(screen, 'light gray', [width // 2 - 130, height // 2, 260, 60], 0, 5)
-        pygame.draw.rect(screen, 'dark gray', [width // 2 - 130, height // 2, 260, 60], 5, 5)
+        single_player_btn = pygame.draw.rect(screen, 'light yellow', [width // 2 - 130, height // 2 - 50, 260, 60], 0, 5)
+        pygame.draw.rect(screen, 'blue', [width // 2 - 130, height // 2 - 50, 260, 60], 5, 5)
         text_single_player = font.render('Single Player', True, 'black')
-        text_single_player_rect = text_single_player.get_rect(center=menu_btn_single_player.center)
+        text_single_player_rect = text_single_player.get_rect(center=single_player_btn.center)
         screen.blit(text_single_player, text_single_player_rect)
 
         # Multiplayer button
-        menu_btn_multiplayer = pygame.draw.rect(screen, 'light gray', [width // 2 - 130, height // 2 + 100, 260, 60], 0,
-                                                5)
-        pygame.draw.rect(screen, 'dark gray', [width // 2 - 130, height // 2 + 100, 260, 60], 5, 5)
+        multiplayer_btn = pygame.draw.rect(screen, 'light yellow', [width // 2 - 130, height // 2 + 50, 260, 60], 0, 5)
+        pygame.draw.rect(screen, 'blue', [width // 2 - 130, height // 2 + 50, 260, 60], 5, 5)
         text_multiplayer = font.render('Multiplayer', True, 'black')
-        text_multiplayer_rect = text_multiplayer.get_rect(center=menu_btn_multiplayer.center)
+        text_multiplayer_rect = text_multiplayer.get_rect(center=multiplayer_btn.center)
         screen.blit(text_multiplayer, text_multiplayer_rect)
+
+        # Developer Section
+        developed_font = pygame.font.SysFont("", 25, False)
+        developed_by_text = developed_font.render('Developed by:\n'
+                                                 'Angelo Lim\n'
+                                                 'Christopher Douglas\n'
+                                                 'Jeswin James\n'
+                                                 'Josh Sabio\n', True, 'white')
+        developed_by_rect = developed_by_text.get_rect(bottomright=(width - 10, height - 10))
+        screen.blit(developed_by_text, developed_by_rect)
 
         pygame.display.flip()
 
-        if menu_btn_single_player.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+        if single_player_btn.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             return 4  # Single Player option selected
-        elif menu_btn_multiplayer.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+        elif multiplayer_btn.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             return 1  # Multiplayer option selected
 
         pygame.display.update()
+
 
 
 def screen1():
@@ -243,17 +254,32 @@ def screen1():
         screen.blit(player2_text, (100, 217))
         player2_enter = font.render('(and press ENTER) ', True, colour_p2)
         screen.blit(player2_enter, (100, 247))
-        menu_btn = pygame.draw.rect(screen, 'light gray', [230, 300, 260, 60], 0, 5)
-        pygame.draw.rect(screen, 'dark gray', [230, 300, 260, 60], 5, 5)
+        menu_btn = pygame.draw.rect(screen, 'light gray', [230, 500, 260, 60], 0, 5)
+        pygame.draw.rect(screen, 'dark gray', [230, 500, 260, 60], 5, 5)
         text = font.render('Start game', True, 'black')
-        screen.blit(text, (295, 317))
+        screen.blit(text, (295, 517))
+
+        menu_btn_menu = pygame.draw.rect(screen, 'light gray', [230, 600, 260, 60], 0, 5)
+        pygame.draw.rect(screen, 'dark gray', [230, 600, 260, 60], 5, 5)
+        text = font.render('Back', True, 'black')
+        screen.blit(text, (325, 617))
+
         if menu_btn.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             return 2
+
+        if menu_btn_menu.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            turn = 0
+            remaining_count_p1 = 21
+            remaining_count_p2 = 21
+            board = create_board()
+            return 0
 
         pygame.display.update()
 
 
 def screen2():
+    global previous_screen
+    previous_screen = 2
     # pygame.draw.rect(screen, 'black',[100,100,300,300])
     draw_board(board)
     pygame.display.update()
@@ -369,7 +395,7 @@ def screen3():
     screen.blit(text2, (225, 150))
 
     # Play again button
-    menu_btn_3 = pygame.draw.rect(screen, 'light gray', [230, 400, 260, 60], 0, 5)
+    menu_btn_again = pygame.draw.rect(screen, 'light gray', [230, 400, 260, 60], 0, 5)
     pygame.draw.rect(screen, 'dark gray', [230, 400, 260, 60], 5, 5)
     text = font.render('Play again', True, 'black')
     screen.blit(text, (300, 418))
@@ -377,20 +403,20 @@ def screen3():
     # QUIT button
     menu_btn_quit = pygame.draw.rect(screen, 'light gray', [230, 300, 260, 60], 0, 5)
     pygame.draw.rect(screen, 'dark gray', [230, 300, 260, 60], 5, 5)
-    text = font.render('QUIT', True, 'black')
+    text = font.render('Quit', True, 'black')
     screen.blit(text, (325, 318))
 
     # MENU button
     menu_btn_menu = pygame.draw.rect(screen, 'light gray', [230, 200, 260, 60], 0, 5)
     pygame.draw.rect(screen, 'dark gray', [230, 200, 260, 60], 5, 5)
-    text = font.render('MENU', True, 'black')
+    text = font.render('Menu', True, 'black')
     screen.blit(text, (325, 218))
 
     if menu_btn_quit.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
         pygame.quit()
         sys.exit()
 
-    if menu_btn_3.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+    if menu_btn_again.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
         global board
         global game_over
         global turn
@@ -401,8 +427,11 @@ def screen3():
         turn = 0
         remaining_count_p1 = 21
         remaining_count_p2 = 21
-        selected_colors = {'p1': RED, 'p2': YELLOW}
-        return 1  # update to change to either screen 1 or 4 depending on previous screen it was called from
+
+        if previous_screen == 2:
+            return 2
+        elif previous_screen == 5:
+            return 5
 
     if menu_btn_menu.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
         turn = 0
@@ -415,6 +444,8 @@ def screen3():
 
 
 def screen4():
+    global previous_screen
+    previous_screen = 5
     ai = True
     error_message = ""
 
@@ -442,9 +473,10 @@ def screen4():
             global colour_p1
             colour_p1 = RED
 
-        yellow_p1 = pygame.draw.rect(screen, YELLOW, [560, 120, 100, 20], 0, 5)
-        if yellow_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            colour_p1 = YELLOW
+        green_p1 = pygame.draw.rect(screen, GREEN, [560, 120, 100, 20], 0, 5)
+        if green_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            colour_p1 = GREEN
+
         blue_p1 = pygame.draw.rect(screen, BLUE, [560, 140, 100, 20], 0, 5)
         if blue_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             colour_p1 = BLUE
@@ -454,12 +486,23 @@ def screen4():
         player1_enter = font.render('(and press ENTER) ', True, colour_p1)
         screen.blit(player1_enter, (100, 147))
 
-        dif_text = font.render('Enter difficulty level:', True, GREEN)
+        dif_text = font.render('Enter difficulty level:', True, YELLOW)
         screen.blit(dif_text, (100, 217))
-        dif_text = font.render('(easy, medium, hard)', True, GREEN)
+        dif_text = font.render('(easy, medium, hard)', True, YELLOW)
         screen.blit(dif_text, (100, 247))
-        dif_enter = font.render('(and press ENTER) ', True, GREEN)
+        dif_enter = font.render('(and press ENTER) ', True, YELLOW)
         screen.blit(dif_enter, (100, 277))
+
+        menu_btn = pygame.draw.rect(screen, 'light gray', [230, 500, 260, 60], 0, 5)
+        pygame.draw.rect(screen, 'dark gray', [230, 500, 260, 60], 5, 5)
+        text = font.render('Start game', True, 'black')
+        screen.blit(text, (295, 517))
+
+        menu_btn_menu = pygame.draw.rect(screen, 'light gray', [230, 600, 260, 60], 0, 5)
+        pygame.draw.rect(screen, 'dark gray', [230, 600, 260, 60], 5, 5)
+        text = font.render('Back', True, 'black')
+        screen.blit(text, (325, 617))
+
 
         MANAGER.update(UI_REFRESH_RATE)
         MANAGER.draw_ui(screen)
@@ -468,48 +511,47 @@ def screen4():
             error_text = font.render(error_message, True, RED)
             screen.blit(error_text, (100, 317))
 
-        menu_btn_scren5 = pygame.draw.rect(screen, 'light gray', [230, 450, 260, 60], 0, 5)
-        pygame.draw.rect(screen, 'dark gray', [230, 450, 260, 60], 5, 5)
-        text = font.render('Start game', True, 'black')
-        screen.blit(text, (295, 467))
-        if menu_btn_scren5.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+
+        if menu_btn.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             if dif not in ["easy", "medium", "hard"]:
                 error_message = ("Invalid difficulty level.\n"
                                  "Please enter 'easy', 'medium', or 'hard'.")
             else:
                 ai = False
+        if menu_btn_menu.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
+            turn = 0
+            remaining_count_p1 = 21
+            remaining_count_p2 = 21
+            board = create_board()
+            return 0
 
         pygame.display.update()
     return 5
 
 
-def computer_move(myfont):
+def computer_move():
     global dif
+    global turn_count
+    global winner
+    global winnercolor
+    global turn_count_p2
+    global remaining_count_p2
 
     if dif == "easy":
         print("Difficulty: Easy\n")
-        global turn_count_p2
         turn_count_p2 += 1
-        global remaining_count_p2
         remaining_count_p2 -= 1
         print(remaining_count_p2)
+
         col = random.randint(0, COLUMN_COUNT - 1)  # Generate a random column
+
         if is_valid_location(board, col):
             row = get_next_open_row(board, col)
             drop_piece(board, row, col, 2)
 
-            if winning_move(board, 2):
-                global turn_count
-                turn_count = str(turn_count_p2)
-                global winner
-                winner = p2
-                winnercolor = colour_p2
-                label = myfont.render(p2 + " wins!!", 1, colour_p2)
-                screen.blit(label, (100, 10))
-                return True
         return False
 
-    if dif == "medium":
+    elif dif == "medium":
         print("Difficulty: Medium\n")
         turn_count_p2 += 1
         remaining_count_p2 -= 1
@@ -522,18 +564,23 @@ def computer_move(myfont):
             row = get_next_open_row(board, col)
             drop_piece(board, row, col, 2)
 
-            if winning_move(board, 2):
-                turn_count = str(turn_count_p2)
-                winner = p2
-                winnercolor = colour_p2
-                label = myfont.render(p2 + " wins!!", 1, colour_p2)
-                screen.blit(label, (100, 10))
-                return True
         return False
 
-    if dif == "hard":
+    elif dif == "hard":
         print("Difficulty: Hard\n")
-        pass
+        turn_count_p2 += 1
+        remaining_count_p2 -= 1
+        print(remaining_count_p2)
+
+        col = choose_hard_column(board)
+        valid_columns = [col for col in range(COLUMN_COUNT) if is_valid_location(board, col)]
+
+        if is_valid_location(board, col) and col is not None and valid_columns:
+            row = get_next_open_row(board, col)
+            drop_piece(board, row, col, 2)
+
+        return False
+
 
 
 def choose_medium_column(board):
@@ -561,6 +608,14 @@ def choose_medium_column(board):
     valid_columns = [col for col in range(COLUMN_COUNT) if is_valid_location(board, col)]
     return random.choice(valid_columns)
 
+
+def minimax():
+    # Implement MiniMax algo
+    return
+
+def choose_hard_column(board):
+    # Implement hard mode ai logic
+    return
 
 def screen5():
     draw_board(board)
@@ -599,10 +654,11 @@ def screen5():
                                 label = myfont.render(p1 + " wins!!", 1, colour_p1)
                                 screen.blit(label, (100, 10))
                                 game_over = True
+
                             else:
                                 player1_turn = False  # Switch to Computer's turn
                 else:  # Computer's turn
-                    if not computer_move(myfont):
+                    if not computer_move():
                         print_board(board)
                         draw_board(board)
                         if winning_move(board, 2):
@@ -612,6 +668,7 @@ def screen5():
                             label = myfont.render(p2 + " wins!!", 1, colour_p2)
                             screen.blit(label, (100, 10))
                             game_over = True
+
                         else:
                             player1_turn = True  # Switch back to Player 1's turn
 
@@ -641,7 +698,7 @@ def screen5():
             pygame.display.update()
 
         if game_over:
-            pygame.time.wait(100)  # Wait for a moment to display the victory message
+            pygame.time.wait(2000)  # Wait for a moment to display the victory message
             return 3  # Transition to screen3
 
     return 5
