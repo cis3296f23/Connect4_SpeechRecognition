@@ -4,6 +4,7 @@ import sys
 import math
 import pygame_gui
 import random
+from gameLogic import GameLogic
 
 p1 = "Player 1"  # initialize with a default value
 p2 = "Player 2"  # initialize with default value
@@ -26,88 +27,10 @@ remaining_count_p1 = 21
 remaining_count_p2 = 21
 CLOCK = pygame.time.Clock()
 winnername = str
+gl = GameLogic(ROW_COUNT, COLUMN_COUNT)
 
-
-def create_board():
-    board = np.zeros((ROW_COUNT, COLUMN_COUNT))
-    return board
-
-
-def drop_piece(board, row, col, piece):
-    board[row][col] = piece
-
-
-def is_valid_location(board, col):
-    return board[ROW_COUNT - 1][col] == 0
-
-
-def get_next_open_row(board, col):
-    for r in range(ROW_COUNT):
-        if board[r][col] == 0:
-            return r
-
-
-def print_board(board):
-    print(np.flip(board, 0))
-
-
-def winning_move(board, piece):
-    global winner  # Declare winner as a global variable
-    # Check horizontal locations for win
-    for c in range(COLUMN_COUNT - 3):
-        for r in range(ROW_COUNT):
-            if board[r][c] == piece and board[r][c + 1] == piece and board[r][c + 2] == piece and board[r][
-                c + 3] == piece:
-                winner = p1 if piece == 1 else p2
-                return True
-
-    # Check vertical locations for win
-    for c in range(COLUMN_COUNT):
-        for r in range(ROW_COUNT - 3):
-            if board[r][c] == piece and board[r + 1][c] == piece and board[r + 2][c] == piece and board[r + 3][
-                c] == piece:
-                winner = p1 if piece == 1 else p2
-                return True
-
-    # Check positively sloped diagonals
-    for c in range(COLUMN_COUNT - 3):
-        for r in range(ROW_COUNT - 3):
-            if board[r][c] == piece and board[r + 1][c + 1] == piece and board[r + 2][c + 2] == piece and board[r + 3][
-                c + 3] == piece:
-                winner = p1 if piece == 1 else p2
-                return True
-
-    # Check negatively sloped diagonals
-    for c in range(COLUMN_COUNT - 3):
-        for r in range(3, ROW_COUNT):
-            if board[r][c] == piece and board[r - 1][c + 1] == piece and board[r - 2][c + 2] == piece and board[r - 3][
-                c + 3] == piece:
-                winner = p1 if piece == 1 else p2
-                return True
-
-
-def draw_board(board):
-    for c in range(COLUMN_COUNT):
-        for r in range(ROW_COUNT):
-            pygame.draw.rect(screen, WHITE, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
-            pygame.draw.circle(screen, BLACK, (
-                int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-
-    for c in range(COLUMN_COUNT):
-        for r in range(ROW_COUNT):
-            if board[r][c] == 1:
-                pygame.draw.circle(screen, colour_p1, (
-                    int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-            elif board[r][c] == 2:
-                pygame.draw.circle(screen, colour_p2, (
-                    int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-    # pygame.draw.circle(screen, RED, (600, 25), RADIUS/2)
-    # pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
-    pygame.display.update()
-
-
-board = create_board()
-print_board(board)
+board = gl.create_board()
+gl.print_board(board)
 game_over = False
 turn = 0
 
@@ -116,7 +39,7 @@ pygame.init()
 width = (COLUMN_COUNT) * SQUARESIZE
 height = (ROW_COUNT) * SQUARESIZE
 
-RADIUS = int(SQUARESIZE / 2 - 5)
+radius = int(SQUARESIZE / 2 - 5)
 
 screen = pygame.display.set_mode([width, height])
 pygame.display.set_caption('Connect4')
@@ -131,7 +54,6 @@ TEXT_INPUT1 = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350
                                                   object_id="#first_text_entry")
 TEXT_INPUT2 = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350, 205), (200, 50)), manager=MANAGER,
                                                   object_id="#second_text_entry")
-
 
 def screen0():
     while True:
@@ -255,7 +177,7 @@ def screen1():
 
 def screen2():
     # pygame.draw.rect(screen, 'black',[100,100,300,300])
-    draw_board(board)
+    gl.draw_board(board, screen, radius, height, colour_p1, colour_p2)
     pygame.display.update()
 
     myfont = pygame.font.SysFont("monospace", 75)
@@ -268,8 +190,8 @@ def screen2():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            # pygame.draw.circle(screen, RED, (600, 25), RADIUS / 2)
-            # pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
+            # pygame.draw.circle(screen, RED, (600, 25), radius / 2)
+            # pygame.draw.circle(screen, YELLOW, (650, 25), radius / 2)
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
@@ -286,11 +208,11 @@ def screen2():
                     posx = event.pos[0]
                     col = int(math.floor(posx / SQUARESIZE))
 
-                    if is_valid_location(board, col):
-                        row = get_next_open_row(board, col)
-                        drop_piece(board, row, col, 1)
+                    if gl.is_valid_location(board, col):
+                        row = gl.get_next_open_row(board, col)
+                        gl.drop_piece(board, row, col, 1)
 
-                        if winning_move(board, 1):
+                        if gl.winning_move(board, 1):
                             global turn_count
                             turn_count = str(turn_count_p1)
                             global winner
@@ -311,11 +233,11 @@ def screen2():
                     posx = event.pos[0]
                     col = int(math.floor(posx / SQUARESIZE))
 
-                    if is_valid_location(board, col):
-                        row = get_next_open_row(board, col)
-                        drop_piece(board, row, col, 2)
+                    if gl.is_valid_location(board, col):
+                        row = gl.get_next_open_row(board, col)
+                        gl.drop_piece(board, row, col, 2)
 
-                        if winning_move(board, 2):
+                        if gl.winning_move(board, 2):
                             turn_count = str(turn_count_p2)
                             winner = p2
                             winnercolor = colour_p2
@@ -323,8 +245,8 @@ def screen2():
                             screen.blit(label, (100, 10))
                             game_over = True
 
-                print_board(board)
-                draw_board(board)
+                gl.print_board(board)
+                gl.draw_board(board, screen, radius, height, colour_p1, colour_p2)
 
                 turn += 1
                 turn = turn % 2
@@ -338,25 +260,25 @@ def screen2():
                 pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
                 posx = event.pos[0]
                 if turn == 0:
-                    pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
-                    pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
+                    pygame.draw.circle(screen, colour_p1, (628, 25), radius / 2)
+                    pygame.draw.circle(screen, colour_p2, (675, 25), radius / 2)
                     text_rem = font.render('Remaining coins:', True, 'white')
                     screen.blit(text_rem, (396, 13))
                     text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
                     screen.blit(text_rem_p1, (616, 15))
                     text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
                     screen.blit(text_rem_p1, (663, 15))
-                    pygame.draw.circle(screen, colour_p1, (posx, int(SQUARESIZE / 2)), RADIUS)
+                    pygame.draw.circle(screen, colour_p1, (posx, int(SQUARESIZE / 2)), radius)
                 else:
-                    pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
-                    pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
+                    pygame.draw.circle(screen, colour_p1, (628, 25), radius / 2)
+                    pygame.draw.circle(screen, colour_p2, (675, 25), radius / 2)
                     text_rem = font.render('Remaining coins:', True, 'white')
                     screen.blit(text_rem, (396, 13))
                     text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
                     screen.blit(text_rem_p1, (616, 15))
                     text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
                     screen.blit(text_rem_p1, (663, 15))
-                    pygame.draw.circle(screen, colour_p2, (posx, int(SQUARESIZE / 2)), RADIUS)
+                    pygame.draw.circle(screen, colour_p2, (posx, int(SQUARESIZE / 2)), radius)
             pygame.display.update()
 
 
@@ -396,7 +318,7 @@ def screen3():
         global turn
         global remaining_count_p1
         global remaining_count_p2
-        board = create_board()
+        board = gl.create_board()
         game_over = False
         turn = 0
         remaining_count_p1 = 21
@@ -408,7 +330,7 @@ def screen3():
         turn = 0
         remaining_count_p1 = 21
         remaining_count_p2 = 21
-        board = create_board()
+        board = gl.create_board()
         return 0
 
     return 3
@@ -494,11 +416,11 @@ def computer_move(myfont):
         remaining_count_p2 -= 1
         print(remaining_count_p2)
         col = random.randint(0, COLUMN_COUNT - 1)  # Generate a random column
-        if is_valid_location(board, col):
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 2)
+        if gl.is_valid_location(board, col):
+            row = gl.get_next_open_row(board, col)
+            gl.drop_piece(board, row, col, 2)
 
-            if winning_move(board, 2):
+            if gl.winning_move(board, 2):
                 global turn_count
                 turn_count = str(turn_count_p2)
                 global winner
@@ -516,13 +438,13 @@ def computer_move(myfont):
         print(remaining_count_p2)
 
         col = choose_medium_column(board)
-        valid_columns = [col for col in range(COLUMN_COUNT) if is_valid_location(board, col)]
+        valid_columns = [col for col in range(COLUMN_COUNT) if gl.is_valid_location(board, col)]
 
-        if is_valid_location(board, col) and col is not None and valid_columns:
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 2)
+        if gl.is_valid_location(board, col) and col is not None and valid_columns:
+            row = gl.get_next_open_row(board, col)
+            gl.drop_piece(board, row, col, 2)
 
-            if winning_move(board, 2):
+            if gl.winning_move(board, 2):
                 turn_count = str(turn_count_p2)
                 winner = p2
                 winnercolor = colour_p2
@@ -540,30 +462,30 @@ def choose_medium_column(board):
     # Check for potential winning moves
     for col in range(COLUMN_COUNT):
         temp_board = board.copy()
-        if is_valid_location(temp_board, col):
-            row = get_next_open_row(temp_board, col)
-            drop_piece(temp_board, row, col, 2)
+        if gl.is_valid_location(temp_board, col):
+            row = gl.get_next_open_row(temp_board, col)
+            gl.drop_piece(temp_board, row, col, 2)
 
-            if winning_move(temp_board, 2):
+            if gl.winning_move(temp_board, 2):
                 return col
 
     # Check for opponent's potential winning moves and block them
     for col in range(COLUMN_COUNT):
         temp_board = board.copy()
-        if is_valid_location(temp_board, col):
-            row = get_next_open_row(temp_board, col)
-            drop_piece(temp_board, row, col, 1)
+        if gl.is_valid_location(temp_board, col):
+            row = gl.get_next_open_row(temp_board, col)
+            gl.drop_piece(temp_board, row, col, 1)
 
-            if winning_move(temp_board, 1):
+            if gl.winning_move(temp_board, 1):
                 return col
 
     # If no winning or blocking move, choose a random valid column
-    valid_columns = [col for col in range(COLUMN_COUNT) if is_valid_location(board, col)]
+    valid_columns = [col for col in range(COLUMN_COUNT) if gl.is_valid_location(board, col)]
     return random.choice(valid_columns)
 
 
 def screen5():
-    draw_board(board)
+    gl.draw_board(board, screen, radius, height, colour_p1, colour_p2)
     pygame.display.update()
 
     myfont = pygame.font.SysFont("monospace", 75)
@@ -586,11 +508,11 @@ def screen5():
 
                         remaining_count_p1 -= 1
                         print(remaining_count_p1)
-                        if is_valid_location(board, col):
-                            row = get_next_open_row(board, col)
-                            drop_piece(board, row, col, 1)
+                        if gl.is_valid_location(board, col):
+                            row = gl.get_next_open_row(board, col)
+                            gl.drop_piece(board, row, col, 1)
 
-                            if winning_move(board, 1):
+                            if gl.winning_move(board, 1):
                                 global turn_count
                                 turn_count = str(turn_count_p1)
                                 global winner, winnercolor
@@ -603,9 +525,9 @@ def screen5():
                                 player1_turn = False  # Switch to Computer's turn
                 else:  # Computer's turn
                     if not computer_move(myfont):
-                        print_board(board)
-                        draw_board(board)
-                        if winning_move(board, 2):
+                        gl.print_board(board)
+                        gl.draw_board(board, screen, radius, height, colour_p1, colour_p2)
+                        if gl.winning_move(board, 2):
                             turn_count = str(turn_count_p2)  # Update the turn count for the computer
                             winner = p2
                             winnercolor = colour_p2
@@ -619,25 +541,25 @@ def screen5():
                 pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
                 posx = event.pos[0]
                 if player1_turn:
-                    pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
-                    pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
+                    pygame.draw.circle(screen, colour_p1, (628, 25), radius / 2)
+                    pygame.draw.circle(screen, colour_p2, (675, 25), radius / 2)
                     text_rem = font.render('Remaining coins:', True, 'white')
                     screen.blit(text_rem, (396, 13))
                     text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
                     screen.blit(text_rem_p1, (616, 15))
                     text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
                     screen.blit(text_rem_p1, (663, 15))
-                    pygame.draw.circle(screen, colour_p1, (posx, int(SQUARESIZE / 2)), RADIUS)
+                    pygame.draw.circle(screen, colour_p1, (posx, int(SQUARESIZE / 2)), radius)
                 else:
-                    pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
-                    pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
+                    pygame.draw.circle(screen, colour_p1, (628, 25), radius / 2)
+                    pygame.draw.circle(screen, colour_p2, (675, 25), radius / 2)
                     text_rem = font.render('Remaining coins:', True, 'white')
                     screen.blit(text_rem, (396, 13))
                     text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
                     screen.blit(text_rem_p1, (616, 15))
                     text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
                     screen.blit(text_rem_p1, (663, 15))
-                    pygame.draw.circle(screen, colour_p2, (posx, int(SQUARESIZE / 2)), RADIUS)
+                    pygame.draw.circle(screen, colour_p2, (posx, int(SQUARESIZE / 2)), radius)
             pygame.display.update()
 
         if game_over:
