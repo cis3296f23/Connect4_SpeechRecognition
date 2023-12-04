@@ -576,6 +576,8 @@ def screen5():
                         if gl.is_valid_location(board, col):
                             row = gl.get_next_open_row(board, col)
                             gl.drop_piece(board, row, col, 1)
+                            gl.print_board(board)
+                            gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
 
                             if gl.winning_move(board, 1):
                                 turn_count = str(turn_count_p1)
@@ -588,6 +590,7 @@ def screen5():
                                 player1_turn = False  # Switch to Computer's turn
                 else:  # Computer's turn
                     if not computer_move():
+                        pygame.time.wait(3000)
                         gl.print_board(board)
                         gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
                         if gl.winning_move(board, 2):
