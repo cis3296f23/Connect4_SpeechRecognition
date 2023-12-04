@@ -637,11 +637,9 @@ def get_speech_input():
         print("Say the column number to drop the chip:")
         recognizer.adjust_for_ambient_noise(source, duration=1)
         audio = recognizer.listen(source)
-        print("RAH")
 
     try:
         spoken_text = recognizer.recognize_google(audio).lower()
-        print(spoken_text)
         return spoken_text
     except sr.UnknownValueError:
         print("Sorry, I did not understand. Please try again.")
