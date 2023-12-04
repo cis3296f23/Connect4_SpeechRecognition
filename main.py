@@ -4,6 +4,7 @@ import sys
 import math
 import pygame_gui
 import random
+import speech_recognition as sr
 from gameLogic import GameLogic
 
 p1 = "Player 1"  # initialize with a default value
@@ -556,22 +557,15 @@ def screen5():
 
             if not game_over:
                 if player1_turn:  # Player 1's turn
-                    if event.type == pygame.MOUSEBUTTONDOWN:
-                        pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
-                        posx = event.pos[0]
-                        col = int(math.floor(posx / SQUARESIZE))
-                        global remaining_count_p1
-
-                        remaining_count_p1 -= 1
-                        print(remaining_count_p1)
+                    col = get_player_move()
+                    if col is not None:
+                        posx = col * SQUARESIZE
                         if gl.is_valid_location(board, col):
                             row = gl.get_next_open_row(board, col)
                             gl.drop_piece(board, row, col, 1)
 
                             if gl.winning_move(board, 1):
-                                global turn_count
                                 turn_count = str(turn_count_p1)
-                                global winner, winnercolor
                                 winner = p1
                                 winnercolor = colour_p1
                                 label = myfont.render(p1 + " wins!!", 1, colour_p1)
@@ -624,6 +618,51 @@ def screen5():
 
     return 5
 
+def get_speech_input():
+    recognizer = sr.Recognizer()
+    microphone = sr.Microphone()
+
+    with microphone as source:
+        print("Say the column number to drop the chip:")
+        recognizer.adjust_for_ambient_noise(source, duration=1)
+        audio = recognizer.listen(source)
+        print("RAH")
+
+    try:
+        spoken_text = recognizer.recognize_google(audio).lower()
+        print(spoken_text)
+        return spoken_text
+    except sr.UnknownValueError:
+        print("Sorry, I did not understand. Please try again.")
+        return None
+    except sr.RequestError as e:
+        print(f"Could not request results from Google Speech Recognition service; {e}")
+        return None
+
+def speech_recognition_move():
+    spoken_text = get_speech_input()
+    if spoken_text is not None:
+        try:
+            column = int(spoken_text)
+            if 1 <= column <= COLUMN_COUNT and gl.is_valid_location(board, column - 1):
+                return column - 1
+            else:
+                print("Invalid column number. Please try again.")
+                return None
+        except ValueError:
+            print("Invalid input. Please say a valid column number.")
+            return None
+
+    return None
+
+# Add the following function to your existing code
+def get_player_move():
+    if p1 == "AI":
+        # If Player 1 is AI, use the computer_move function
+        return computer_move()
+    else:
+        # If Player 1 is human, use speech recognition
+        return speech_recognition_move()
 
 run = True
 while run:
