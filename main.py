@@ -4,6 +4,7 @@ import sys
 import math
 import pygame_gui
 import random
+import pyaudio
 import speech_recognition as sr
 from gameLogic import GameLogic
 
