@@ -4,6 +4,7 @@ import pygame
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+BLUE = (64, 144, 245)
 SQUARESIZE = 100
 class GameLogic:
     def __init__(self, row, col):
@@ -66,7 +67,7 @@ class GameLogic:
     def draw_board(self, board, screen, radius, height, colour_p1, colour_p2):
         for c in range(self.col):
             for r in range(self.row):
-                pygame.draw.rect(screen, WHITE, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
+                pygame.draw.rect(screen, BLUE, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
                 pygame.draw.circle(screen, BLACK, (
                     int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), radius)
 
