@@ -235,92 +235,93 @@ def screen2():
             # pygame.draw.circle(screen, RED, (600, 25), RADIUS / 2)
             # pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
 
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
-                # print(event.pos)
-                # Ask for Player 1 Input
-                if turn == 0:
-                    global turn_count_p1
-                    turn_count_p1 += 1
-                    global remaining_count_p1
-                    global winnername
-                    global winnercolor
-                    remaining_count_p1 -= 1
-                    print(remaining_count_p1)
-                    posx = event.pos[0]
-                    col = int(math.floor(posx / SQUARESIZE))
+            pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
+            # print(event.pos)
+            # Ask for Player 1 Input
+            if turn == 0:
+                global turn_count_p1
+                turn_count_p1 += 1
+                global remaining_count_p1
+                global winnername
+                global winnercolor
+                remaining_count_p1 -= 1
+                print(remaining_count_p1)
+                col = None
+                while(col == None):
+                    col = speech_recognition_move()
+                posx = col * SQUARESIZE
 
-                    if gl.is_valid_location(board, col):
-                        row = gl.get_next_open_row(board, col)
-                        gl.drop_piece(board, row, col, 1)
+                if gl.is_valid_location(board, col):
+                    row = gl.get_next_open_row(board, col)
+                    gl.drop_piece(board, row, col, 1)
 
-                        if gl.winning_move(board, 1):
-                            global turn_count
-                            turn_count = str(turn_count_p1)
-                            global winner
-                            winner = p1
-                            winnercolor = colour_p1
-                            label = myfont.render(p1 + " wins!!", 1, colour_p1)
-                            screen.blit(label, (100, 10))
-                            game_over = True
+                    if gl.winning_move(board, 1):
+                        global turn_count
+                        turn_count = str(turn_count_p1)
+                        global winner
+                        winner = p1
+                        winnercolor = colour_p1
+                        label = myfont.render(p1 + " wins!!", 1, colour_p1)
+                        screen.blit(label, (100, 10))
+                        game_over = True
 
-                # Ask for Player 2 Input
-                elif turn != 0:
-                    global turn_count_p2
-                    turn_count_p2 += 1
-                    global remaining_count_p2
+            # Ask for Player 2 Input
+            elif turn != 0:
+                global turn_count_p2
+                turn_count_p2 += 1
+                global remaining_count_p2
 
-                    remaining_count_p2 -= 1
-                    print(remaining_count_p2)
-                    posx = event.pos[0]
-                    col = int(math.floor(posx / SQUARESIZE))
+                remaining_count_p2 -= 1
+                print(remaining_count_p2)
+                col = None
+                while (col == None):
+                    col = speech_recognition_move()
+                posx = col * SQUARESIZE
 
-                    if gl.is_valid_location(board, col):
-                        row = gl.get_next_open_row(board, col)
-                        gl.drop_piece(board, row, col, 2)
+                if gl.is_valid_location(board, col):
+                    row = gl.get_next_open_row(board, col)
+                    gl.drop_piece(board, row, col, 2)
 
-                        if gl.winning_move(board, 2):
-                            turn_count = str(turn_count_p2)
-                            winner = p2
-                            winnercolor = colour_p2
-                            label = myfont.render(p2 + " wins!!", 1, colour_p2)
-                            screen.blit(label, (100, 10))
-                            game_over = True
+                    if gl.winning_move(board, 2):
+                        turn_count = str(turn_count_p2)
+                        winner = p2
+                        winnercolor = colour_p2
+                        label = myfont.render(p2 + " wins!!", 1, colour_p2)
+                        screen.blit(label, (100, 10))
+                        game_over = True
 
-                gl.print_board(board)
-                gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
+            gl.print_board(board)
+            gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
 
-                turn += 1
-                turn = turn % 2
+            turn += 1
+            turn = turn % 2
 
-                if game_over:
-                    pygame.time.wait(2000)
-                    scr_no = 3
-                    screen_number = scr_no
+            if game_over:
+                pygame.time.wait(2000)
+                scr_no = 3
+                screen_number = scr_no
 
-            if event.type == pygame.MOUSEMOTION:
-                pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
-                posx = event.pos[0]
-                if turn == 0:
-                    pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
-                    pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
-                    text_rem = font.render('Remaining coins:', True, 'white')
-                    screen.blit(text_rem, (396, 13))
-                    text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
-                    screen.blit(text_rem_p1, (616, 15))
-                    text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
-                    screen.blit(text_rem_p1, (663, 15))
-                    pygame.draw.circle(screen, colour_p1, (posx, int(SQUARESIZE / 2)), RADIUS)
-                else:
-                    pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
-                    pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
-                    text_rem = font.render('Remaining coins:', True, 'white')
-                    screen.blit(text_rem, (396, 13))
-                    text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
-                    screen.blit(text_rem_p1, (616, 15))
-                    text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
-                    screen.blit(text_rem_p1, (663, 15))
-                    pygame.draw.circle(screen, colour_p2, (posx, int(SQUARESIZE / 2)), RADIUS)
+
+            if turn == 0:
+                pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
+                pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
+                text_rem = font.render('Remaining coins:', True, 'white')
+                screen.blit(text_rem, (396, 13))
+                text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
+                screen.blit(text_rem_p1, (616, 15))
+                text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
+                screen.blit(text_rem_p1, (663, 15))
+                pygame.draw.circle(screen, colour_p1, (posx, int(SQUARESIZE / 2)), RADIUS)
+            else:
+                pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
+                pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
+                text_rem = font.render('Remaining coins:', True, 'white')
+                screen.blit(text_rem, (396, 13))
+                text_rem_p1 = font.render(str(remaining_count_p1), True, 'black')
+                screen.blit(text_rem_p1, (616, 15))
+                text_rem_p1 = font.render(str(remaining_count_p2), True, 'black')
+                screen.blit(text_rem_p1, (663, 15))
+                pygame.draw.circle(screen, colour_p2, (posx, int(SQUARESIZE / 2)), RADIUS)
             pygame.display.update()
 
 
@@ -570,7 +571,7 @@ def screen5():
 
             if not game_over:
                 if player1_turn:  # Player 1's turn
-                    col = get_player_move()
+                    col = speech_recognition_move()
                     if col is not None:
                         posx = col * SQUARESIZE
                         if gl.is_valid_location(board, col):
@@ -590,7 +591,7 @@ def screen5():
                                 player1_turn = False  # Switch to Computer's turn
                 else:  # Computer's turn
                     if not computer_move():
-                        pygame.time.wait(3000)
+                        pygame.time.wait(2000)  # Wait before dropping piece
                         gl.print_board(board)
                         gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
                         if gl.winning_move(board, 2):
@@ -645,6 +646,7 @@ def get_speech_input():
 
     try:
         spoken_text = recognizer.recognize_google(audio).lower()
+        print(spoken_text)
         return spoken_text
     except sr.UnknownValueError:
         print("Sorry, I did not understand. Please try again.")
@@ -658,7 +660,9 @@ def speech_recognition_move():
     if spoken_text is not None:
         try:
             numbers = [word for word in spoken_text.split() if word.lower() in num_dict]
+            print(numbers)
             column = int(''.join(num_dict[word.lower()] for word in numbers))
+            print(column)
             if 1 <= column <= COLUMN_COUNT and gl.is_valid_location(board, column - 1):
                 return column - 1
             else:
@@ -670,14 +674,13 @@ def speech_recognition_move():
 
     return None
 
-# Add the following function to your existing code
-def get_player_move():
+"""def get_player_move():
     if p1 == "AI":
         # If Player 1 is AI, use the computer_move function
         return computer_move()
     else:
         # If Player 1 is human, use speech recognition
-        return speech_recognition_move()
+        return speech_recognition_move()"""
 
 run = True
 while run:
