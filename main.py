@@ -34,8 +34,10 @@ gl = GameLogic(ROW_COUNT, COLUMN_COUNT)
 num_dict = {
     'one': '1',
     'two': '2',
+    'to': '2',
     'three': '3',
     'four': '4',
+    'for': '4',
     'five': '5',
     'six': '6',
     'seven': '7',
@@ -652,7 +654,8 @@ def speech_recognition_move():
     spoken_text = get_speech_input()
     if spoken_text is not None:
         try:
-            column = int(''.join(num_dict[n] for n in spoken_text.split()))
+            numbers = [word for word in spoken_text.split() if word.lower() in num_dict]
+            column = int(''.join(num_dict[word.lower()] for word in numbers))
             if 1 <= column <= COLUMN_COUNT and gl.is_valid_location(board, column - 1):
                 return column - 1
             else:
