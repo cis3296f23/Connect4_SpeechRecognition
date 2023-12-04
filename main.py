@@ -4,6 +4,7 @@ import sys
 import math
 import pygame_gui
 import random
+from gameLogic import GameLogic
 
 p1 = "Player 1"  # initialize with a default value
 p2 = "Player 2"  # initialize with default value
@@ -12,7 +13,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 139, 148)
 YELLOW = (250, 238, 7)
-BLUE = (64, 144, 245)
+BLUE = (0, 251, 255)
 GREEN = (124, 252, 0)
 colour_p1 = RED
 colour_p1_sig = RED
@@ -26,87 +27,10 @@ remaining_count_p1 = 21
 remaining_count_p2 = 21
 CLOCK = pygame.time.Clock()
 winnername = str
+gl = GameLogic(ROW_COUNT, COLUMN_COUNT)
 
-
-
-def create_board():
-    board = np.zeros((ROW_COUNT, COLUMN_COUNT))
-    return board
-
-
-def drop_piece(board, row, col, piece):
-    board[row][col] = piece
-
-
-def is_valid_location(board, col):
-    return board[ROW_COUNT - 1][col] == 0
-
-
-def get_next_open_row(board, col):
-    for r in range(ROW_COUNT):
-        if board[r][col] == 0:
-            return r
-
-
-def print_board(board):
-    print(np.flip(board, 0))
-
-
-def winning_move(board, piece):
-    global winner  # Declare winner as a global variable
-    # Check horizontal locations for win
-    for c in range(COLUMN_COUNT - 3):
-        for r in range(ROW_COUNT):
-            if board[r][c] == piece and board[r][c + 1] == piece and board[r][c + 2] == piece and board[r][
-                c + 3] == piece:
-                winner = p1 if piece == 1 else p2
-                return True
-
-    # Check vertical locations for win
-    for c in range(COLUMN_COUNT):
-        for r in range(ROW_COUNT - 3):
-            if board[r][c] == piece and board[r + 1][c] == piece and board[r + 2][c] == piece and board[r + 3][
-                c] == piece:
-                winner = p1 if piece == 1 else p2
-                return True
-
-    # Check positively sloped diagonals
-    for c in range(COLUMN_COUNT - 3):
-        for r in range(ROW_COUNT - 3):
-            if board[r][c] == piece and board[r + 1][c + 1] == piece and board[r + 2][c + 2] == piece and board[r + 3][
-                c + 3] == piece:
-                winner = p1 if piece == 1 else p2
-                return True
-
-    # Check negatively sloped diagonals
-    for c in range(COLUMN_COUNT - 3):
-        for r in range(3, ROW_COUNT):
-            if board[r][c] == piece and board[r - 1][c + 1] == piece and board[r - 2][c + 2] == piece and board[r - 3][
-                c + 3] == piece:
-                winner = p1 if piece == 1 else p2
-                return True
-
-
-def draw_board(board):
-    for c in range(COLUMN_COUNT):
-        for r in range(ROW_COUNT):
-            pygame.draw.rect(screen, BLUE, (c * SQUARESIZE, r * SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE))
-            pygame.draw.circle(screen, BLACK, (
-                int(c * SQUARESIZE + SQUARESIZE / 2), int(r * SQUARESIZE + SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-
-    for c in range(COLUMN_COUNT):
-        for r in range(ROW_COUNT):
-            if board[r][c] == 1:
-                pygame.draw.circle(screen, colour_p1, (
-                    int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-            elif board[r][c] == 2:
-                pygame.draw.circle(screen, colour_p2, (
-                    int(c * SQUARESIZE + SQUARESIZE / 2), height - int(r * SQUARESIZE + SQUARESIZE / 2)), RADIUS)
-    pygame.display.update()
-
-
-board = create_board()
-print_board(board)
+board = gl.create_board()
+gl.print_board(board)
 game_over = False
 turn = 0
 
@@ -148,7 +72,8 @@ def screen0():
         screen.blit(title_text, title_rect)
 
         # Single Player button
-        single_player_btn = pygame.draw.rect(screen, 'light yellow', [width // 2 - 130, height // 2 - 50, 260, 60], 0, 5)
+        single_player_btn = pygame.draw.rect(screen, 'light yellow', [width // 2 - 130, height // 2 - 50, 260, 60], 0,
+                                             5)
         pygame.draw.rect(screen, 'blue', [width // 2 - 130, height // 2 - 50, 260, 60], 5, 5)
         text_single_player = font.render('Single Player', True, 'black')
         text_single_player_rect = text_single_player.get_rect(center=single_player_btn.center)
@@ -164,10 +89,10 @@ def screen0():
         # Developer Section
         developed_font = pygame.font.SysFont("", 25, False)
         developed_by_text = developed_font.render('Developed by:\n'
-                                                 'Angelo Lim\n'
-                                                 'Christopher Douglas\n'
-                                                 'Jeswin James\n'
-                                                 'Josh Sabio\n', True, 'white')
+                                                  'Angelo Lim\n'
+                                                  'Christopher Douglas\n'
+                                                  'Jeswin James\n'
+                                                  'Josh Sabio\n', True, 'white')
         developed_by_rect = developed_by_text.get_rect(bottomright=(width - 10, height - 10))
         screen.blit(developed_by_text, developed_by_rect)
 
@@ -179,7 +104,6 @@ def screen0():
             return 1  # Multiplayer option selected
 
         pygame.display.update()
-
 
 
 def screen1():
@@ -271,7 +195,7 @@ def screen1():
             turn = 0
             remaining_count_p1 = 21
             remaining_count_p2 = 21
-            board = create_board()
+            board = gl.create_board()
             return 0
 
         pygame.display.update()
@@ -281,7 +205,7 @@ def screen2():
     global previous_screen
     previous_screen = 2
     # pygame.draw.rect(screen, 'black',[100,100,300,300])
-    draw_board(board)
+    gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
     pygame.display.update()
 
     myfont = pygame.font.SysFont("monospace", 75)
@@ -312,11 +236,11 @@ def screen2():
                     posx = event.pos[0]
                     col = int(math.floor(posx / SQUARESIZE))
 
-                    if is_valid_location(board, col):
-                        row = get_next_open_row(board, col)
-                        drop_piece(board, row, col, 1)
+                    if gl.is_valid_location(board, col):
+                        row = gl.get_next_open_row(board, col)
+                        gl.drop_piece(board, row, col, 1)
 
-                        if winning_move(board, 1):
+                        if gl.winning_move(board, 1):
                             global turn_count
                             turn_count = str(turn_count_p1)
                             global winner
@@ -337,11 +261,11 @@ def screen2():
                     posx = event.pos[0]
                     col = int(math.floor(posx / SQUARESIZE))
 
-                    if is_valid_location(board, col):
-                        row = get_next_open_row(board, col)
-                        drop_piece(board, row, col, 2)
+                    if gl.is_valid_location(board, col):
+                        row = gl.get_next_open_row(board, col)
+                        gl.drop_piece(board, row, col, 2)
 
-                        if winning_move(board, 2):
+                        if gl.winning_move(board, 2):
                             turn_count = str(turn_count_p2)
                             winner = p2
                             winnercolor = colour_p2
@@ -349,8 +273,8 @@ def screen2():
                             screen.blit(label, (100, 10))
                             game_over = True
 
-                print_board(board)
-                draw_board(board)
+                gl.print_board(board)
+                gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
 
                 turn += 1
                 turn = turn % 2
@@ -422,7 +346,7 @@ def screen3():
         global turn
         global remaining_count_p1
         global remaining_count_p2
-        board = create_board()
+        board = gl.create_board()
         game_over = False
         turn = 0
         remaining_count_p1 = 21
@@ -437,7 +361,7 @@ def screen3():
         turn = 0
         remaining_count_p1 = 21
         remaining_count_p2 = 21
-        board = create_board()
+        board = gl.create_board()
         return 0
 
     return 3
@@ -503,14 +427,12 @@ def screen4():
         text = font.render('Back', True, 'black')
         screen.blit(text, (325, 617))
 
-
         MANAGER.update(UI_REFRESH_RATE)
         MANAGER.draw_ui(screen)
 
         if error_message:
             error_text = font.render(error_message, True, RED)
             screen.blit(error_text, (100, 317))
-
 
         if menu_btn.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             if dif not in ["easy", "medium", "hard"]:
@@ -522,7 +444,7 @@ def screen4():
             turn = 0
             remaining_count_p1 = 21
             remaining_count_p2 = 21
-            board = create_board()
+            board = gl.create_board()
             return 0
 
         pygame.display.update()
@@ -545,9 +467,9 @@ def computer_move():
 
         col = random.randint(0, COLUMN_COUNT - 1)  # Generate a random column
 
-        if is_valid_location(board, col):
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 2)
+        if gl.is_valid_location(board, col):
+            row = gl.get_next_open_row(board, col)
+            gl.drop_piece(board, row, col, 2)
 
         return False
 
@@ -558,11 +480,11 @@ def computer_move():
         print(remaining_count_p2)
 
         col = choose_medium_column(board)
-        valid_columns = [col for col in range(COLUMN_COUNT) if is_valid_location(board, col)]
+        valid_columns = [col for col in range(COLUMN_COUNT) if gl.is_valid_location(board, col)]
 
-        if is_valid_location(board, col) and col is not None and valid_columns:
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 2)
+        if gl.is_valid_location(board, col) and col is not None and valid_columns:
+            row = gl.get_next_open_row(board, col)
+            gl.drop_piece(board, row, col, 2)
 
         return False
 
@@ -572,40 +494,39 @@ def computer_move():
         remaining_count_p2 -= 1
         print(remaining_count_p2)
 
-        col = choose_hard_column(board)
-        valid_columns = [col for col in range(COLUMN_COUNT) if is_valid_location(board, col)]
+        col = gl.choose_hard_column(board)
+        valid_columns = [col for col in range(COLUMN_COUNT) if gl.is_valid_location(board, col)]
 
-        if is_valid_location(board, col) and col is not None and valid_columns:
-            row = get_next_open_row(board, col)
-            drop_piece(board, row, col, 2)
+        if gl.is_valid_location(board, col) and col is not None and valid_columns:
+            row = gl.get_next_open_row(board, col)
+            gl.drop_piece(board, row, col, 2)
 
         return False
-
 
 
 def choose_medium_column(board):
     # Check for potential winning moves
     for col in range(COLUMN_COUNT):
         temp_board = board.copy()
-        if is_valid_location(temp_board, col):
-            row = get_next_open_row(temp_board, col)
-            drop_piece(temp_board, row, col, 2)
+        if gl.is_valid_location(temp_board, col):
+            row = gl.get_next_open_row(temp_board, col)
+            gl.drop_piece(temp_board, row, col, 2)
 
-            if winning_move(temp_board, 2):
+            if gl.winning_move(temp_board, 2):
                 return col
 
     # Check for opponent's potential winning moves and block them
     for col in range(COLUMN_COUNT):
         temp_board = board.copy()
-        if is_valid_location(temp_board, col):
-            row = get_next_open_row(temp_board, col)
-            drop_piece(temp_board, row, col, 1)
+        if gl.is_valid_location(temp_board, col):
+            row = gl.get_next_open_row(temp_board, col)
+            gl.drop_piece(temp_board, row, col, 1)
 
-            if winning_move(temp_board, 1):
+            if gl.winning_move(temp_board, 1):
                 return col
 
     # If no winning or blocking move, choose a random valid column
-    valid_columns = [col for col in range(COLUMN_COUNT) if is_valid_location(board, col)]
+    valid_columns = [col for col in range(COLUMN_COUNT) if gl.is_valid_location(board, col)]
     return random.choice(valid_columns)
 
 
@@ -613,12 +534,14 @@ def minimax():
     # Implement MiniMax algo
     return
 
+
 def choose_hard_column(board):
     # Implement hard mode ai logic
     return
 
+
 def screen5():
-    draw_board(board)
+    gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
     pygame.display.update()
 
     myfont = pygame.font.SysFont("monospace", 75)
@@ -641,11 +564,11 @@ def screen5():
 
                         remaining_count_p1 -= 1
                         print(remaining_count_p1)
-                        if is_valid_location(board, col):
-                            row = get_next_open_row(board, col)
-                            drop_piece(board, row, col, 1)
+                        if gl.is_valid_location(board, col):
+                            row = gl.get_next_open_row(board, col)
+                            gl.drop_piece(board, row, col, 1)
 
-                            if winning_move(board, 1):
+                            if gl.winning_move(board, 1):
                                 global turn_count
                                 turn_count = str(turn_count_p1)
                                 global winner, winnercolor
@@ -654,21 +577,19 @@ def screen5():
                                 label = myfont.render(p1 + " wins!!", 1, colour_p1)
                                 screen.blit(label, (100, 10))
                                 game_over = True
-
                             else:
                                 player1_turn = False  # Switch to Computer's turn
                 else:  # Computer's turn
                     if not computer_move():
-                        print_board(board)
-                        draw_board(board)
-                        if winning_move(board, 2):
+                        gl.print_board(board)
+                        gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
+                        if gl.winning_move(board, 2):
                             turn_count = str(turn_count_p2)  # Update the turn count for the computer
                             winner = p2
                             winnercolor = colour_p2
                             label = myfont.render(p2 + " wins!!", 1, colour_p2)
                             screen.blit(label, (100, 10))
                             game_over = True
-
                         else:
                             player1_turn = True  # Switch back to Player 1's turn
 
@@ -698,7 +619,7 @@ def screen5():
             pygame.display.update()
 
         if game_over:
-            pygame.time.wait(2000)  # Wait for a moment to display the victory message
+            pygame.time.wait(1000)  # Wait for a moment to display the victory message
             return 3  # Transition to screen3
 
     return 5
