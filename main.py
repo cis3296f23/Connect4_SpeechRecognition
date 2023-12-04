@@ -30,6 +30,25 @@ CLOCK = pygame.time.Clock()
 winnername = str
 gl = GameLogic(ROW_COUNT, COLUMN_COUNT)
 
+connect4_positions = ["Column 1", "Column 2", "Column 3", "Column 4", "Column 5", "Column 6", "Column 7",
+                      "Drop in column 1", "Drop in column 2", "Drop in column 3", "Drop in column 4",
+                      "Drop in column 5", "Drop in column 6", "Drop in column 7", "Place it in column 1",
+                      "Place it in column 2", "Place it in column 3", "Place it in column 4",
+                      "Place it in column 5", "Place it in column 6", "Place it in column 7",
+                      "Put a chip in column 1", "Put a chip in column 2", "Put a chip in column 3",
+                      "Put a chip in column 4", "Put a chip in column 5", "Put a chip in column 6",
+                      "Put a chip in column 7"]
+
+num_dict = {
+    'one': '1',
+    'two': '2',
+    'three': '3',
+    'four': '4',
+    'five': '5',
+    'six': '6',
+    'seven': '7',
+}
+
 board = gl.create_board()
 gl.print_board(board)
 game_over = False
@@ -643,7 +662,7 @@ def speech_recognition_move():
     spoken_text = get_speech_input()
     if spoken_text is not None:
         try:
-            column = int(spoken_text)
+            column = int(''.join(num_dict[n] for n in spoken_text.split()))
             if 1 <= column <= COLUMN_COUNT and gl.is_valid_location(board, column - 1):
                 return column - 1
             else:
