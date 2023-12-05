@@ -494,7 +494,7 @@ def computer_move():
         remaining_count_p2 -= 1
         print(remaining_count_p2)
 
-        col = gl.choose_hard_column(board)
+        col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
         valid_columns = [col for col in range(COLUMN_COUNT) if gl.is_valid_location(board, col)]
 
         if gl.is_valid_location(board, col) and col is not None and valid_columns:
@@ -530,14 +530,101 @@ def choose_medium_column(board):
     return random.choice(valid_columns)
 
 
-def minimax():
-    # Implement MiniMax algo
-    return
+def evaluate_board(board):
+    # Constants for weights
+    WINNING_SCORE = 1000
+    BLOCKING_SCORE = 100
+    TWO_IN_A_ROW_SCORE = 10
+    ONE_IN_A_ROW_SCORE = 1
+
+    score = 0
+
+    # Check for winning moves
+    if gl.winning_move(board, 2):  # Computer wins
+        return WINNING_SCORE
+    elif gl.winning_move(board, 1):  # Opponent wins
+        return -WINNING_SCORE
+
+    # Check for potential winning moves and blocking moves
+    for col in range(COLUMN_COUNT):
+        for row in range(ROW_COUNT):
+            if board[row][col] == 0:  # Empty space
+                # Check for potential winning move for the computer
+                temp_board = [row[:] for row in board]  # Create a copy of the board
+                gl.drop_piece(temp_board, row, col, 2)
+                if gl.winning_move(temp_board, 2):
+                    score += BLOCKING_SCORE
+
+                # Check for potential winning move for the opponent
+                temp_board = [row[:] for row in board]
+                gl.drop_piece(temp_board, row, col, 1)
+                if gl.winning_move(temp_board, 1):
+                    score -= BLOCKING_SCORE
+
+    # Check for two in a row and one in a row for the computer
+    for col in range(COLUMN_COUNT - 1):
+        for row in range(ROW_COUNT):
+            if board[row][col] == 2 and board[row][col + 1] == 2:
+                score += TWO_IN_A_ROW_SCORE
+            elif board[row][col] == 2 and board[row][col + 1] == 0:
+                score += ONE_IN_A_ROW_SCORE
+
+    # Check for two in a row and one in a row for the opponent
+    for col in range(COLUMN_COUNT - 1):
+        for row in range(ROW_COUNT):
+            if board[row][col] == 1 and board[row][col + 1] == 1:
+                score -= TWO_IN_A_ROW_SCORE
+            elif board[row][col] == 1 and board[row][col + 1] == 0:
+                score -= ONE_IN_A_ROW_SCORE
+
+    return score
 
 
-def choose_hard_column(board):
-    # Implement hard mode ai logic
-    return
+def minimax(board, depth, alpha, beta, maximizingPlayer):
+    valid_locations = gl.get_valid_locations(board)
+    is_terminal = gl.is_terminal_node(board)
+    if depth == 0 or is_terminal:
+        if is_terminal:
+            if gl.winning_move(board, 2):
+                return (None, 100000000000000)
+            elif gl.winning_move(board, 1):
+                return (None, -10000000000000)
+            else:  # Game is over, no more valid moves
+                return (None, 0)
+        else:  # Depth is zero
+            return (None, gl.score_position(board, 2))
+    if maximizingPlayer:
+        value = -math.inf
+        column = random.choice(valid_locations)
+        for col in valid_locations:
+            row = gl.get_next_open_row(board, col)
+            b_copy = board.copy()
+            gl.drop_piece(b_copy, row, col, 2)
+            new_score = minimax(b_copy, depth - 1, alpha, beta, False)[1]
+            if new_score > value:
+                value = new_score
+                column = col
+            alpha = max(alpha, value)
+            if alpha >= beta:
+                break
+        return column, value
+
+    else:  # Minimizing player
+        value = math.inf
+        column = random.choice(valid_locations)
+        for col in valid_locations:
+            row = gl.get_next_open_row(board, col)
+            b_copy = board.copy()
+            gl.drop_piece(b_copy, row, col, 1)
+            new_score = minimax(b_copy, depth - 1, alpha, beta, True)[1]
+            if new_score < value:
+                value = new_score
+                column = col
+            beta = min(beta, value)
+            if alpha >= beta:
+                break
+        return column, value
+
 
 
 def screen5():

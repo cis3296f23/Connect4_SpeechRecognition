@@ -6,11 +6,14 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 BLUE = (64, 144, 245)
 SQUARESIZE = 100
+
+
 class GameLogic:
     def __init__(self, row, col):
         self.row = row
         self.col = col
         self.winner = None
+
     def create_board(self):
         return np.zeros((self.row, self.col))
 
@@ -82,3 +85,65 @@ class GameLogic:
         # pygame.draw.circle(screen, RED, (600, 25), radius/2)
         # pygame.draw.circle(screen, YELLOW, (650, 25), radius / 2)
         pygame.display.update()
+
+    def is_terminal_node(self, board):
+        return self.winning_move(board, 1) or self.winning_move(board, 2) or len(self.get_valid_locations(board)) == 0
+
+    def get_valid_locations(self, board):
+        valid_locations = []
+        for col in range(self.col):
+            if self.is_valid_location(board, col):
+                valid_locations.append(col)
+        return valid_locations
+
+    def evaluate_window(self, window, piece):
+        score = 0
+        opp_piece = 1
+        if piece == 1:
+            opp_piece = 2
+
+        if window.count(piece) == 4:
+            score += 100
+        elif window.count(piece) == 3 and window.count(0) == 1:
+            score += 5
+        elif window.count(piece) == 2 and window.count(0) == 2:
+            score += 2
+
+        if window.count(opp_piece) == 3 and window.count(0) == 1:
+            score -= 4
+
+        return score
+    def score_position(self, board, piece):
+        score = 0
+
+        # Score center column
+        center_array = [int(i) for i in list(board[:, self.col // 2])]
+        center_count = center_array.count(piece)
+        score += center_count * 3
+
+        # Score Horizontal
+        for r in range(self.row):
+            row_array = [int(i) for i in list(board[r, :])]
+            for c in range(self.col - 3):
+                window = row_array[c:c + 4]
+                score += self.evaluate_window(window, piece)
+
+        # Score Vertical
+        for c in range(self.col):
+            col_array = [int(i) for i in list(board[:, c])]
+            for r in range(self.row - 3):
+                window = col_array[r:r + 4]
+                score += self.evaluate_window(window, piece)
+
+        # Score posiive sloped diagonal
+        for r in range(self.row - 3):
+            for c in range(self.col - 3):
+                window = [board[r + i][c + i] for i in range(4)]
+                score += self.evaluate_window(window, piece)
+
+        for r in range(self.row - 3):
+            for c in range(self.col - 3):
+                window = [board[r + 3 - i][c + i] for i in range(4)]
+                score += self.evaluate_window(window, piece)
+
+        return score
