@@ -69,8 +69,7 @@ TEXT_INPUT1 = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350
 TEXT_INPUT2 = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350, 205), (200, 50)), manager=MANAGER,
                                                   object_id="#second_text_entry")
 
-
-def screen0():
+def screen0():  # Main Menu
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -120,7 +119,7 @@ def screen0():
         pygame.display.update()
 
 
-def screen1():
+def screen1(): # Multiplayer Menu
     selected_colors = {'p1': RED, 'p2': YELLOW}
     while True:
         UI_REFRESH_RATE = CLOCK.tick(60) / 1000
@@ -215,7 +214,7 @@ def screen1():
         pygame.display.update()
 
 
-def screen2():
+def screen2(): # Multiplayer Game
     global previous_screen
     previous_screen = 2
     # pygame.draw.rect(screen, 'black',[100,100,300,300])
@@ -247,7 +246,7 @@ def screen2():
                 remaining_count_p1 -= 1
                 print(remaining_count_p1)
                 col = None
-                while(col == None):
+                while (col == None):
                     col = speech_recognition_move()
                 posx = col * SQUARESIZE
 
@@ -301,7 +300,6 @@ def screen2():
                 scr_no = 3
                 screen_number = scr_no
 
-
             if turn == 0:
                 pygame.draw.circle(screen, colour_p1, (628, 25), RADIUS / 2)
                 pygame.draw.circle(screen, colour_p2, (675, 25), RADIUS / 2)
@@ -323,9 +321,10 @@ def screen2():
                 screen.blit(text_rem_p1, (663, 15))
                 pygame.draw.circle(screen, colour_p2, (posx, int(SQUARESIZE / 2)), RADIUS)
             pygame.display.update()
+    return 3, winner, winnercolor
 
 
-def screen3():
+def screen3(): # Win Screen
     global winnercolor
     global winner  # Declare winner as a global variable if it's not already passed as an argument
     text1 = font.render(winner + ' wins!', True, winnercolor)  # Ensure winner is a string
@@ -382,7 +381,7 @@ def screen3():
     return 3
 
 
-def screen4():
+def screen4(): # Single Player Menu
     global previous_screen
     previous_screen = 5
     ai = True
@@ -641,8 +640,10 @@ def minimax(board, depth, alpha, beta, maximizingPlayer):
         return column, value
 
 
+def screen5(): # Single PLayer Game
+    global winner
+    global winnercolor
 
-def screen5():
     gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
     pygame.display.update()
 
@@ -718,9 +719,10 @@ def screen5():
 
         if game_over:
             pygame.time.wait(1000)  # Wait for a moment to display the victory message
-            return 3  # Transition to screen3
+            return 3, winner, winnercolor  # Transition to screen3
 
     return 5
+
 
 def get_speech_input():
     recognizer = sr.Recognizer()
@@ -742,6 +744,7 @@ def get_speech_input():
         print(f"Could not request results from Google Speech Recognition service; {e}")
         return None
 
+
 def speech_recognition_move():
     spoken_text = get_speech_input()
     if spoken_text is not None:
@@ -760,6 +763,7 @@ def speech_recognition_move():
             return None
 
     return None
+
 
 """def get_player_move():
     if p1 == "AI":
