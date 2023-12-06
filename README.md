@@ -20,6 +20,8 @@ Welcome to Connect4 with Speech Recognition, where we blend the classic Connect 
 ![Connect4_SpeechRecognition in action](images/connect4mpmenu.png)
 ### Connect 4 Single Player Menu:
 ![Connect4_SpeechRecognition in action](images/connect4aimenu.png)
+### Connect 4 Board:
+![Connect4_SpeechRecognition in action](images/connect4board.png)
 ### Connect 4 Victory Screen:
 ![Connect4_SpeechRecognition in action](images/connect4victory.png)
 
