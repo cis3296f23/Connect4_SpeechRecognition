@@ -15,13 +15,13 @@ Welcome to Connect4 with Speech Recognition, where we blend the classic Connect 
 ## Screenshots/Mockups
 
 ### Connect 4 Main Menu:
-![Connect4_SpeechRecognition in action](connect4mainmenu.png)
+![Connect4_SpeechRecognition in action](images/connect4mainmenu.png)
 ### Connect 4 Multiplayer Menu:
-![Connect4_SpeechRecognition in action](connect4mpmenu.png)
+![Connect4_SpeechRecognition in action](images/connect4mpmenu.png)
 ### Connect 4 Single Player Menu:
-![Connect4_SpeechRecognition in action](connect4aimenu.png)
+![Connect4_SpeechRecognition in action](images/connect4aimenu.png)
 ### Connect 4 Victory Screen:
-![Connect4_SpeechRecognition in action](connect4victory.png)
+![Connect4_SpeechRecognition in action](images/connect4victory.png)
 
 <!-- Add a screenshot or a mockup of your application in action to give users a visual preview of what to expect. -->
 
