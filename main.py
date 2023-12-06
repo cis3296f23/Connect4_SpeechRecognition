@@ -6,63 +6,61 @@ import random
 from speechRecognition import SpeechRecognizer
 from gameLogic import GameLogic
 
-p1 = "Player 1"  # initialize with a default value
-p2 = "Player 2"  # initialize with default value
+# Default player names and difficulties
+p1 = "Player 1"
+p2 = "Player 2"
 dif = "easy"
+
+# Color Constants
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 139, 148)
 YELLOW = (250, 238, 7)
 BLUE = (0, 251, 255)
 GREEN = (124, 252, 0)
+
+# Default player colors
 colour_p1 = RED
 colour_p1_sig = RED
 colour_p2 = YELLOW
+
+# Board Dimensions
 ROW_COUNT = 6
 COLUMN_COUNT = 7
 SQUARESIZE = 100
+
+# Other variables
 turn_count_p1 = 0
 turn_count_p2 = 0
 remaining_count_p1 = 21
 remaining_count_p2 = 21
-CLOCK = pygame.time.Clock()
 winnername = str
-gl = GameLogic(ROW_COUNT, COLUMN_COUNT)
-sr = SpeechRecognizer()
-
-num_dict = {
-    'one': '1',
-    'two': '2',
-    'to': '2',
-    'three': '3',
-    'four': '4',
-    'for': '4',
-    'five': '5',
-    'six': '6',
-    'seven': '7',
-}
-
-board = gl.create_board()
-gl.print_board(board)
 game_over = False
 turn = 0
 
+# Call to other classes
+gl = GameLogic(ROW_COUNT, COLUMN_COUNT)
+sr = SpeechRecognizer()
+
+# Game board
+board = gl.create_board()
+gl.print_board(board)
 pygame.init()
 
+# Screen setup
 width = (COLUMN_COUNT) * SQUARESIZE
 height = (ROW_COUNT + 1) * SQUARESIZE
-
 RADIUS = int(SQUARESIZE / 2 - 5)
-
 screen = pygame.display.set_mode([width, height])
 pygame.display.set_caption('Connect4')
+CLOCK = pygame.time.Clock()
 fps = 60
-
 timer = pygame.time.Clock()
 screen_number = 0
 font = pygame.font.Font('freesansbold.ttf', 24)
-
 MANAGER = pygame_gui.UIManager((width, height))
+
+# Entry lines for player names
 TEXT_INPUT1 = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350, 105), (200, 50)), manager=MANAGER,
                                                   object_id="#first_text_entry")
 TEXT_INPUT2 = pygame_gui.elements.UITextEntryLine(relative_rect=pygame.Rect((350, 205), (200, 50)), manager=MANAGER,
@@ -75,6 +73,7 @@ def screen0():  # Main Menu
                 pygame.quit()
                 sys.exit()
 
+        # Background color
         screen.fill('dark blue')  # Updated background color
 
         # Title
@@ -138,6 +137,7 @@ def screen1(): # Multiplayer Menu
         screen.fill('black')
         MANAGER.draw_ui(screen)
 
+        # Handling color selection for player 1
         red_p1 = pygame.draw.rect(screen, RED, [560, 90, 100, 20], 0, 5)
         if red_p1.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p1
@@ -160,6 +160,7 @@ def screen1(): # Multiplayer Menu
                 selected_colors['p1'] = GREEN
                 colour_p1 = GREEN
 
+        # Handling color selection for player 2
         red_p2 = pygame.draw.rect(screen, RED, [560, 200, 100, 20], 0, 5)
         if red_p2.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             global colour_p2
@@ -182,6 +183,7 @@ def screen1(): # Multiplayer Menu
                 selected_colors['p2'] = GREEN
                 colour_p2 = GREEN
 
+        # Rendering player information
         player1_text = font.render('Enter Player 1 name: ', True, colour_p1)
         screen.blit(player1_text, (100, 117))
         player1_enter = font.render('(and press ENTER) ', True, colour_p1)
@@ -190,11 +192,14 @@ def screen1(): # Multiplayer Menu
         screen.blit(player2_text, (100, 217))
         player2_enter = font.render('(and press ENTER) ', True, colour_p2)
         screen.blit(player2_enter, (100, 247))
+
+        # "Start Game" button
         menu_btn = pygame.draw.rect(screen, 'light gray', [230, 500, 260, 60], 0, 5)
         pygame.draw.rect(screen, 'dark gray', [230, 500, 260, 60], 5, 5)
         text = font.render('Start game', True, 'black')
         screen.blit(text, (295, 517))
 
+        # "Back" button
         menu_btn_menu = pygame.draw.rect(screen, 'light gray', [230, 600, 260, 60], 0, 5)
         pygame.draw.rect(screen, 'dark gray', [230, 600, 260, 60], 5, 5)
         text = font.render('Back', True, 'black')
@@ -203,38 +208,29 @@ def screen1(): # Multiplayer Menu
         if menu_btn.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
             return 2
 
-        if menu_btn_menu.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-            turn = 0
-            remaining_count_p1 = 21
-            remaining_count_p2 = 21
-            board = gl.create_board()
-            return 0
-
         pygame.display.update()
 
 
 def screen2(): # Multiplayer Game
     global previous_screen
     previous_screen = 2
-    # pygame.draw.rect(screen, 'black',[100,100,300,300])
+
+    # Draw initial game board
     gl.draw_board(board, screen, RADIUS, height, colour_p1, colour_p2)
     pygame.display.update()
 
+    # Set up fonts and game variables
     myfont = pygame.font.SysFont("monospace", 75)
     game_over = False
     turn = 0
 
     while not game_over:
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            # pygame.draw.circle(screen, RED, (600, 25), RADIUS / 2)
-            # pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)
-
             pygame.draw.rect(screen, BLACK, (0, 0, width, SQUARESIZE))
-            # print(event.pos)
+
             # Ask for Player 1 Input
             if turn == 0:
                 global turn_count_p1
