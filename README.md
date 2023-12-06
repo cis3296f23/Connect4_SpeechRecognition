@@ -49,4 +49,34 @@ To contribute or run the project locally, follow these steps:
 
 4. Run `main.py` to launch the Connect4 with Speech Recognition game.
 
+### or 
+
+1. Simply download and run the Connect4.exe file!
+
+
+## How to Update Executable File
+
+1. In PyCharm make sure project is up to date with most recent changes.
+
+2. Install the pyinstaller package:
+
+    ```bash
+    pip install pyinstaller
+    ```
+
+3. In the Terminal run the command:
+
+    ```bash
+    pyinstaller main.py --onefile --name Connect4 
+    ```
+
+4. Executable file should be located in the dist/ folder of the project.
+
+
+
+
+   
+   
+
+
 Your feedback and contributions are highly valued. Let's make Connect4 with Speech Recognition a memorable and enjoyable experience for everyone!
