@@ -1,11 +1,9 @@
 import pygame
-import numpy as np
 import sys
 import math
 import pygame_gui
 import random
-import pyaudio
-import speech_recognition as sr
+from speechRecognition import SpeechRecognizer
 from gameLogic import GameLogic
 
 p1 = "Player 1"  # initialize with a default value
@@ -30,6 +28,7 @@ remaining_count_p2 = 21
 CLOCK = pygame.time.Clock()
 winnername = str
 gl = GameLogic(ROW_COUNT, COLUMN_COUNT)
+sr = SpeechRecognizer()
 
 num_dict = {
     'one': '1',
@@ -247,7 +246,7 @@ def screen2(): # Multiplayer Game
                 print(remaining_count_p1)
                 col = None
                 while (col == None):
-                    col = speech_recognition_move()
+                    col = sr.speech_recognition_move(gl, board)
                 posx = col * SQUARESIZE
 
                 if gl.is_valid_location(board, col):
@@ -274,7 +273,7 @@ def screen2(): # Multiplayer Game
                 print(remaining_count_p2)
                 col = None
                 while (col == None):
-                    col = speech_recognition_move()
+                    col = sr.speech_recognition_move(gl, board)
                 posx = col * SQUARESIZE
 
                 if gl.is_valid_location(board, col):
@@ -659,7 +658,7 @@ def screen5(): # Single PLayer Game
 
             if not game_over:
                 if player1_turn:  # Player 1's turn
-                    col = speech_recognition_move()
+                    col = sr.speech_recognition_move(gl, board)
                     if col is not None:
                         posx = col * SQUARESIZE
                         if gl.is_valid_location(board, col):
@@ -722,56 +721,6 @@ def screen5(): # Single PLayer Game
             return 3, winner, winnercolor  # Transition to screen3
 
     return 5
-
-
-def get_speech_input():
-    recognizer = sr.Recognizer()
-    microphone = sr.Microphone()
-
-    with microphone as source:
-        print("Say the column number to drop the chip:")
-        recognizer.adjust_for_ambient_noise(source, duration=1)
-        audio = recognizer.listen(source)
-
-    try:
-        spoken_text = recognizer.recognize_google(audio).lower()
-        print(spoken_text)
-        return spoken_text
-    except sr.UnknownValueError:
-        print("Sorry, I did not understand. Please try again.")
-        return None
-    except sr.RequestError as e:
-        print(f"Could not request results from Google Speech Recognition service; {e}")
-        return None
-
-
-def speech_recognition_move():
-    spoken_text = get_speech_input()
-    if spoken_text is not None:
-        try:
-            numbers = [word for word in spoken_text.split() if word.lower() in num_dict]
-            print(numbers)
-            column = int(''.join(num_dict[word.lower()] for word in numbers))
-            print(column)
-            if 1 <= column <= COLUMN_COUNT and gl.is_valid_location(board, column - 1):
-                return column - 1
-            else:
-                print("Invalid column number. Please try again.")
-                return None
-        except ValueError:
-            print("Invalid input. Please say a valid column number.")
-            return None
-
-    return None
-
-
-"""def get_player_move():
-    if p1 == "AI":
-        # If Player 1 is AI, use the computer_move function
-        return computer_move()
-    else:
-        # If Player 1 is human, use speech recognition
-        return speech_recognition_move()"""
 
 run = True
 while run:
