@@ -1,0 +1,7 @@
+speechRecognition module
+========================
+
+.. automodule:: speechRecognition
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>gameLogic &mdash; Connect4 with Speech Recognition 3.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=110ea713"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Connect4 with Speech Recognition
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Connect4_SpeechRecognition</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Connect4 with Speech Recognition</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">gameLogic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for gameLogic</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">pygame</span>
+
+<span class="n">WHITE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+<span class="n">BLACK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">BLUE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">144</span><span class="p">,</span> <span class="mi">245</span><span class="p">)</span>
+<span class="n">SQUARESIZE</span> <span class="o">=</span> <span class="mi">100</span>
+
+
+<div class="viewcode-block" id="GameLogic">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic">[docs]</a>
+<span class="k">class</span> <span class="nc">GameLogic</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">=</span> <span class="n">row</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">=</span> <span class="n">col</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">winner</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="GameLogic.create_board">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.create_board">[docs]</a>
+    <span class="k">def</span> <span class="nf">create_board</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="GameLogic.drop_piece">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.drop_piece">[docs]</a>
+    <span class="k">def</span> <span class="nf">drop_piece</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="n">piece</span><span class="p">):</span>
+        <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">piece</span></div>
+
+
+<div class="viewcode-block" id="GameLogic.is_valid_location">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.is_valid_location">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_valid_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">board</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="GameLogic.get_next_open_row">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.get_next_open_row">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_next_open_row</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">r</span></div>
+
+
+<div class="viewcode-block" id="GameLogic.print_board">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.print_board">[docs]</a>
+    <span class="k">def</span> <span class="nf">print_board</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="GameLogic.winning_move">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.winning_move">[docs]</a>
+    <span class="k">def</span> <span class="nf">winning_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">,</span> <span class="n">piece</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">winner</span>  <span class="c1"># Declare winner as a global variable</span>
+        <span class="c1"># Check horizontal locations for win</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span>
+                    <span class="n">c</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">winner</span> <span class="o">=</span> <span class="n">piece</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># Check vertical locations for win</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="mi">2</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="mi">3</span><span class="p">][</span>
+                    <span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">winner</span> <span class="o">=</span> <span class="n">piece</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># Check positively sloped diagonals</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="mi">2</span><span class="p">][</span><span class="n">c</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> \
+                        <span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="mi">3</span><span class="p">][</span>
+                            <span class="n">c</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">winner</span> <span class="o">=</span> <span class="n">piece</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># Check negatively sloped diagonals</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">-</span> <span class="mi">2</span><span class="p">][</span><span class="n">c</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span> <span class="ow">and</span> \
+                        <span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">-</span> <span class="mi">3</span><span class="p">][</span>
+                            <span class="n">c</span> <span class="o">+</span> <span class="mi">3</span><span class="p">]</span> <span class="o">==</span> <span class="n">piece</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">winner</span> <span class="o">=</span> <span class="n">piece</span>
+                    <span class="k">return</span> <span class="kc">True</span></div>
+
+
+<div class="viewcode-block" id="GameLogic.draw_board">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.draw_board">[docs]</a>
+    <span class="k">def</span> <span class="nf">draw_board</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">):</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLUE</span><span class="p">,</span> <span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">SQUARESIZE</span><span class="p">,</span> <span class="n">r</span> <span class="o">*</span> <span class="n">SQUARESIZE</span> <span class="o">+</span> <span class="n">SQUARESIZE</span><span class="p">,</span> <span class="n">SQUARESIZE</span><span class="p">,</span> <span class="n">SQUARESIZE</span><span class="p">))</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLACK</span><span class="p">,</span> <span class="p">(</span>
+                    <span class="nb">int</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">SQUARESIZE</span> <span class="o">+</span> <span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">SQUARESIZE</span> <span class="o">+</span> <span class="n">SQUARESIZE</span> <span class="o">+</span> <span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">radius</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span>
+                        <span class="nb">int</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">SQUARESIZE</span> <span class="o">+</span> <span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">height</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">SQUARESIZE</span> <span class="o">+</span> <span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">radius</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span>
+                        <span class="nb">int</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">SQUARESIZE</span> <span class="o">+</span> <span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span> <span class="n">height</span> <span class="o">-</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span> <span class="o">*</span> <span class="n">SQUARESIZE</span> <span class="o">+</span> <span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">radius</span><span class="p">)</span>
+        <span class="c1"># pygame.draw.circle(screen, RED, (600, 25), radius/2)</span>
+        <span class="c1"># pygame.draw.circle(screen, YELLOW, (650, 25), radius / 2)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="GameLogic.is_terminal_node">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.is_terminal_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_terminal_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_valid_locations</span><span class="p">(</span><span class="n">board</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="GameLogic.get_valid_locations">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.get_valid_locations">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_valid_locations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">):</span>
+        <span class="n">valid_locations</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+                <span class="n">valid_locations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">valid_locations</span></div>
+
+
+<div class="viewcode-block" id="GameLogic.evaluate_window">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.evaluate_window">[docs]</a>
+    <span class="k">def</span> <span class="nf">evaluate_window</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">piece</span><span class="p">):</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">opp_piece</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">piece</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">opp_piece</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="n">window</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="mi">100</span>
+        <span class="k">elif</span> <span class="n">window</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">window</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="mi">5</span>
+        <span class="k">elif</span> <span class="n">window</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">window</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">+=</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="n">window</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">opp_piece</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">window</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">score</span> <span class="o">-=</span> <span class="mi">4</span>
+
+        <span class="k">return</span> <span class="n">score</span></div>
+
+<div class="viewcode-block" id="GameLogic.score_position">
+<a class="viewcode-back" href="../gameLogic.html#gameLogic.GameLogic.score_position">[docs]</a>
+    <span class="k">def</span> <span class="nf">score_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board</span><span class="p">,</span> <span class="n">piece</span><span class="p">):</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># Score center column</span>
+        <span class="n">center_array</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">board</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">//</span> <span class="mi">2</span><span class="p">])]</span>
+        <span class="n">center_count</span> <span class="o">=</span> <span class="n">center_array</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">piece</span><span class="p">)</span>
+        <span class="n">score</span> <span class="o">+=</span> <span class="n">center_count</span> <span class="o">*</span> <span class="mi">3</span>
+
+        <span class="c1"># Score Horizontal</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span><span class="p">):</span>
+            <span class="n">row_array</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">,</span> <span class="p">:])]</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="n">window</span> <span class="o">=</span> <span class="n">row_array</span><span class="p">[</span><span class="n">c</span><span class="p">:</span><span class="n">c</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span>
+                <span class="n">score</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_window</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">piece</span><span class="p">)</span>
+
+        <span class="c1"># Score Vertical</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span><span class="p">):</span>
+            <span class="n">col_array</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">board</span><span class="p">[:,</span> <span class="n">c</span><span class="p">])]</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="n">window</span> <span class="o">=</span> <span class="n">col_array</span><span class="p">[</span><span class="n">r</span><span class="p">:</span><span class="n">r</span> <span class="o">+</span> <span class="mi">4</span><span class="p">]</span>
+                <span class="n">score</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_window</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">piece</span><span class="p">)</span>
+
+        <span class="c1"># Score posiive sloped diagonal</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="n">window</span> <span class="o">=</span> <span class="p">[</span><span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="n">i</span><span class="p">][</span><span class="n">c</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+                <span class="n">score</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_window</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">piece</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">row</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">col</span> <span class="o">-</span> <span class="mi">3</span><span class="p">):</span>
+                <span class="n">window</span> <span class="o">=</span> <span class="p">[</span><span class="n">board</span><span class="p">[</span><span class="n">r</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">-</span> <span class="n">i</span><span class="p">][</span><span class="n">c</span> <span class="o">+</span> <span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+                <span class="n">score</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_window</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">piece</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">score</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Chris Douglas, Angelo Lim, Josh Sabio, Jeswin James.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

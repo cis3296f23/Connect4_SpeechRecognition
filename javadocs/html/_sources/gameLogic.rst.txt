@@ -1,0 +1,7 @@
+gameLogic module
+================
+
+.. automodule:: gameLogic
+   :members:
+   :undoc-members:
+   :show-inheritance:

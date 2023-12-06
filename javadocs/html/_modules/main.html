@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>main &mdash; Connect4 with Speech Recognition 3.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=110ea713"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Connect4 with Speech Recognition
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Connect4_SpeechRecognition</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Connect4 with Speech Recognition</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">main</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for main</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pygame</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">pygame_gui</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">speechRecognition</span> <span class="kn">import</span> <span class="n">SpeechRecognizer</span>
+<span class="kn">from</span> <span class="nn">gameLogic</span> <span class="kn">import</span> <span class="n">GameLogic</span>
+
+<span class="n">p1</span> <span class="o">=</span> <span class="s2">&quot;Player 1&quot;</span>  <span class="c1"># initialize with a default value</span>
+<span class="n">p2</span> <span class="o">=</span> <span class="s2">&quot;Player 2&quot;</span>  <span class="c1"># initialize with default value</span>
+<span class="n">dif</span> <span class="o">=</span> <span class="s2">&quot;easy&quot;</span>
+<span class="n">WHITE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+<span class="n">BLACK</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">RED</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">139</span><span class="p">,</span> <span class="mi">148</span><span class="p">)</span>
+<span class="n">YELLOW</span> <span class="o">=</span> <span class="p">(</span><span class="mi">250</span><span class="p">,</span> <span class="mi">238</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+<span class="n">BLUE</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">251</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+<span class="n">GREEN</span> <span class="o">=</span> <span class="p">(</span><span class="mi">124</span><span class="p">,</span> <span class="mi">252</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">colour_p1</span> <span class="o">=</span> <span class="n">RED</span>
+<span class="n">colour_p1_sig</span> <span class="o">=</span> <span class="n">RED</span>
+<span class="n">colour_p2</span> <span class="o">=</span> <span class="n">YELLOW</span>
+<span class="n">ROW_COUNT</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">COLUMN_COUNT</span> <span class="o">=</span> <span class="mi">7</span>
+<span class="n">SQUARESIZE</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">turn_count_p1</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">turn_count_p2</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">remaining_count_p1</span> <span class="o">=</span> <span class="mi">21</span>
+<span class="n">remaining_count_p2</span> <span class="o">=</span> <span class="mi">21</span>
+<span class="n">CLOCK</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span>
+<span class="n">winnername</span> <span class="o">=</span> <span class="nb">str</span>
+<span class="n">gl</span> <span class="o">=</span> <span class="n">GameLogic</span><span class="p">(</span><span class="n">ROW_COUNT</span><span class="p">,</span> <span class="n">COLUMN_COUNT</span><span class="p">)</span>
+<span class="n">sr</span> <span class="o">=</span> <span class="n">SpeechRecognizer</span><span class="p">()</span>
+
+<span class="n">num_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;one&#39;</span><span class="p">:</span> <span class="s1">&#39;1&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;two&#39;</span><span class="p">:</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;to&#39;</span><span class="p">:</span> <span class="s1">&#39;2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;three&#39;</span><span class="p">:</span> <span class="s1">&#39;3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;four&#39;</span><span class="p">:</span> <span class="s1">&#39;4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;for&#39;</span><span class="p">:</span> <span class="s1">&#39;4&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;five&#39;</span><span class="p">:</span> <span class="s1">&#39;5&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;six&#39;</span><span class="p">:</span> <span class="s1">&#39;6&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;seven&#39;</span><span class="p">:</span> <span class="s1">&#39;7&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">board</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">create_board</span><span class="p">()</span>
+<span class="n">gl</span><span class="o">.</span><span class="n">print_board</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+<span class="n">game_over</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="n">turn</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="n">pygame</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+
+<span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">COLUMN_COUNT</span><span class="p">)</span> <span class="o">*</span> <span class="n">SQUARESIZE</span>
+<span class="n">height</span> <span class="o">=</span> <span class="p">(</span><span class="n">ROW_COUNT</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">SQUARESIZE</span>
+
+<span class="n">RADIUS</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="n">screen</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_mode</span><span class="p">([</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">])</span>
+<span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">set_caption</span><span class="p">(</span><span class="s1">&#39;Connect4&#39;</span><span class="p">)</span>
+<span class="n">fps</span> <span class="o">=</span> <span class="mi">60</span>
+
+<span class="n">timer</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Clock</span><span class="p">()</span>
+<span class="n">screen_number</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">font</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">Font</span><span class="p">(</span><span class="s1">&#39;freesansbold.ttf&#39;</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
+
+<span class="n">MANAGER</span> <span class="o">=</span> <span class="n">pygame_gui</span><span class="o">.</span><span class="n">UIManager</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">))</span>
+<span class="n">TEXT_INPUT1</span> <span class="o">=</span> <span class="n">pygame_gui</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">UITextEntryLine</span><span class="p">(</span><span class="n">relative_rect</span><span class="o">=</span><span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">((</span><span class="mi">350</span><span class="p">,</span> <span class="mi">105</span><span class="p">),</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">)),</span> <span class="n">manager</span><span class="o">=</span><span class="n">MANAGER</span><span class="p">,</span>
+                                                  <span class="n">object_id</span><span class="o">=</span><span class="s2">&quot;#first_text_entry&quot;</span><span class="p">)</span>
+<span class="n">TEXT_INPUT2</span> <span class="o">=</span> <span class="n">pygame_gui</span><span class="o">.</span><span class="n">elements</span><span class="o">.</span><span class="n">UITextEntryLine</span><span class="p">(</span><span class="n">relative_rect</span><span class="o">=</span><span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">((</span><span class="mi">350</span><span class="p">,</span> <span class="mi">205</span><span class="p">),</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">50</span><span class="p">)),</span> <span class="n">manager</span><span class="o">=</span><span class="n">MANAGER</span><span class="p">,</span>
+                                                  <span class="n">object_id</span><span class="o">=</span><span class="s2">&quot;#second_text_entry&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="screen0">
+<a class="viewcode-back" href="../main.html#main.screen0">[docs]</a>
+<span class="k">def</span> <span class="nf">screen0</span><span class="p">():</span>  <span class="c1"># Main Menu</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+        <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39;dark blue&#39;</span><span class="p">)</span>  <span class="c1"># Updated background color</span>
+
+        <span class="c1"># Title</span>
+        <span class="n">title_font</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">SysFont</span><span class="p">(</span><span class="s2">&quot;calibri&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>  <span class="c1"># Larger and bold font for the title</span>
+        <span class="n">title_text</span> <span class="o">=</span> <span class="n">title_font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s2">&quot;Connect4&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;gold&#39;</span><span class="p">)</span>
+        <span class="n">title_rect</span> <span class="o">=</span> <span class="n">title_text</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="p">(</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span><span class="p">,</span> <span class="n">height</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">150</span><span class="p">))</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">title_text</span><span class="p">,</span> <span class="n">title_rect</span><span class="p">)</span>
+
+        <span class="c1"># Single Player button</span>
+        <span class="n">single_player_btn</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light yellow&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">130</span><span class="p">,</span> <span class="n">height</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span>
+                                             <span class="mi">5</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">130</span><span class="p">,</span> <span class="n">height</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">text_single_player</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Single Player&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">text_single_player_rect</span> <span class="o">=</span> <span class="n">text_single_player</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">single_player_btn</span><span class="o">.</span><span class="n">center</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_single_player</span><span class="p">,</span> <span class="n">text_single_player_rect</span><span class="p">)</span>
+
+        <span class="c1"># Multiplayer button</span>
+        <span class="n">multiplayer_btn</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light yellow&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">130</span><span class="p">,</span> <span class="n">height</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">130</span><span class="p">,</span> <span class="n">height</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">text_multiplayer</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Multiplayer&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">text_multiplayer_rect</span> <span class="o">=</span> <span class="n">text_multiplayer</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">multiplayer_btn</span><span class="o">.</span><span class="n">center</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_multiplayer</span><span class="p">,</span> <span class="n">text_multiplayer_rect</span><span class="p">)</span>
+
+        <span class="c1"># Speech Recognition Mode button</span>
+        <span class="n">sr_btn</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light yellow&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">180</span><span class="p">,</span> <span class="n">height</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">360</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="p">[</span><span class="n">width</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">180</span><span class="p">,</span> <span class="n">height</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">360</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">text_sr</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Speech Recognition Mode&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">text_sr_rect</span> <span class="o">=</span> <span class="n">text_sr</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">center</span><span class="o">=</span><span class="n">sr_btn</span><span class="o">.</span><span class="n">center</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_sr</span><span class="p">,</span> <span class="n">text_sr_rect</span><span class="p">)</span>
+
+        <span class="c1"># Developer Section</span>
+        <span class="n">developed_font</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">SysFont</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">developed_by_text</span> <span class="o">=</span> <span class="n">developed_font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Developed by:</span><span class="se">\n</span><span class="s1">&#39;</span>
+                                                  <span class="s1">&#39;Angelo Lim</span><span class="se">\n</span><span class="s1">&#39;</span>
+                                                  <span class="s1">&#39;Christopher Douglas</span><span class="se">\n</span><span class="s1">&#39;</span>
+                                                  <span class="s1">&#39;Jeswin James</span><span class="se">\n</span><span class="s1">&#39;</span>
+                                                  <span class="s1">&#39;Josh Sabio</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+        <span class="n">developed_by_rect</span> <span class="o">=</span> <span class="n">developed_by_text</span><span class="o">.</span><span class="n">get_rect</span><span class="p">(</span><span class="n">bottomright</span><span class="o">=</span><span class="p">(</span><span class="n">width</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="mi">10</span><span class="p">))</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">developed_by_text</span><span class="p">,</span> <span class="n">developed_by_rect</span><span class="p">)</span>
+
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">single_player_btn</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">4</span>  <span class="c1"># Single Player option selected</span>
+        <span class="k">elif</span> <span class="n">multiplayer_btn</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">1</span>  <span class="c1"># Multiplayer option selected</span>
+        <span class="k">elif</span> <span class="n">sr_btn</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">6</span>  <span class="c1"># Speech Recognition Mode option selected</span>
+
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="screen1">
+<a class="viewcode-back" href="../main.html#main.screen1">[docs]</a>
+<span class="k">def</span> <span class="nf">screen1</span><span class="p">():</span>  <span class="c1"># Multiplayer Menu</span>
+    <span class="n">selected_colors</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;p1&#39;</span><span class="p">:</span> <span class="n">RED</span><span class="p">,</span> <span class="s1">&#39;p2&#39;</span><span class="p">:</span> <span class="n">YELLOW</span><span class="p">}</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">UI_REFRESH_RATE</span> <span class="o">=</span> <span class="n">CLOCK</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame_gui</span><span class="o">.</span><span class="n">UI_TEXT_ENTRY_FINISHED</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">ui_object_id</span> <span class="o">==</span> <span class="s2">&quot;#first_text_entry&quot;</span><span class="p">:</span>
+                <span class="k">global</span> <span class="n">p1</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame_gui</span><span class="o">.</span><span class="n">UI_TEXT_ENTRY_FINISHED</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">ui_object_id</span> <span class="o">==</span> <span class="s2">&quot;#second_text_entry&quot;</span><span class="p">:</span>
+                <span class="k">global</span> <span class="n">p2</span>
+                <span class="n">p2</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="n">MANAGER</span><span class="o">.</span><span class="n">process_events</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">UI_REFRESH_RATE</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">draw_ui</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span>
+
+        <span class="n">red_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">red_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">global</span> <span class="n">colour_p1</span>
+            <span class="k">if</span> <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p2&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">RED</span><span class="p">:</span>
+                <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RED</span>
+                <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">RED</span>
+        <span class="n">yellow_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">110</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">yellow_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p2&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">YELLOW</span><span class="p">:</span>
+                <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">YELLOW</span>
+                <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">YELLOW</span>
+        <span class="n">blue_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLUE</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">130</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blue_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p2&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">BLUE</span><span class="p">:</span>
+                <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">BLUE</span>
+                <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">BLUE</span>
+        <span class="n">green_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">green_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p2&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">GREEN</span><span class="p">:</span>
+                <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p1&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GREEN</span>
+                <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">GREEN</span>
+
+        <span class="n">red_p2</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">red_p2</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">global</span> <span class="n">colour_p2</span>
+            <span class="k">if</span> <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p1&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">RED</span><span class="p">:</span>
+                <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">RED</span>
+                <span class="n">colour_p2</span> <span class="o">=</span> <span class="n">RED</span>
+        <span class="n">yellow_p2</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">220</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">yellow_p2</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p1&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">YELLOW</span><span class="p">:</span>
+                <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">YELLOW</span>
+                <span class="n">colour_p2</span> <span class="o">=</span> <span class="n">YELLOW</span>
+        <span class="n">blue_p2</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLUE</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">240</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blue_p2</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p1&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">BLUE</span><span class="p">:</span>
+                <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">BLUE</span>
+                <span class="n">colour_p2</span> <span class="o">=</span> <span class="n">BLUE</span>
+        <span class="n">green_p2</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">green_p2</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p1&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">GREEN</span><span class="p">:</span>
+                <span class="n">selected_colors</span><span class="p">[</span><span class="s1">&#39;p2&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">GREEN</span>
+                <span class="n">colour_p2</span> <span class="o">=</span> <span class="n">GREEN</span>
+
+        <span class="n">player1_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Enter Player 1 name: &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">player1_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">117</span><span class="p">))</span>
+        <span class="n">player1_enter</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;(and press ENTER) &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">player1_enter</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">147</span><span class="p">))</span>
+        <span class="n">player2_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Enter Player 2 name: &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">player2_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">217</span><span class="p">))</span>
+        <span class="n">player2_enter</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;(and press ENTER) &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">player2_enter</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">247</span><span class="p">))</span>
+        <span class="n">menu_btn</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;dark gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Start game&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="mi">295</span><span class="p">,</span> <span class="mi">517</span><span class="p">))</span>
+
+        <span class="n">menu_btn_menu</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;dark gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Back&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="mi">325</span><span class="p">,</span> <span class="mi">617</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">menu_btn</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="mi">2</span>
+
+        <span class="k">if</span> <span class="n">menu_btn_menu</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">remaining_count_p1</span> <span class="o">=</span> <span class="mi">21</span>
+            <span class="n">remaining_count_p2</span> <span class="o">=</span> <span class="mi">21</span>
+            <span class="n">board</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">create_board</span><span class="p">()</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="screen2">
+<a class="viewcode-back" href="../main.html#main.screen2">[docs]</a>
+<span class="k">def</span> <span class="nf">screen2</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">previous_screen</span>
+    <span class="n">previous_screen</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="c1"># pygame.draw.rect(screen, &#39;black&#39;,[100,100,300,300])</span>
+    <span class="n">gl</span><span class="o">.</span><span class="n">draw_board</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">RADIUS</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+    <span class="n">myfont</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">SysFont</span><span class="p">(</span><span class="s2">&quot;monospace&quot;</span><span class="p">,</span> <span class="mi">75</span><span class="p">)</span>
+    <span class="n">game_over</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">turn</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">game_over</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+            <span class="c1"># pygame.draw.circle(screen, RED, (600, 25), RADIUS / 2)</span>
+            <span class="c1"># pygame.draw.circle(screen, YELLOW, (650, 25), RADIUS / 2)</span>
+
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEBUTTONDOWN</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLACK</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">SQUARESIZE</span><span class="p">))</span>
+                <span class="c1"># print(event.pos)</span>
+                <span class="c1"># Ask for Player 1 Input</span>
+                <span class="k">if</span> <span class="n">turn</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">global</span> <span class="n">turn_count_p1</span>
+                    <span class="n">turn_count_p1</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">global</span> <span class="n">remaining_count_p1</span>
+                    <span class="k">global</span> <span class="n">winnername</span>
+                    <span class="k">global</span> <span class="n">winnercolor</span>
+                    <span class="n">remaining_count_p1</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">remaining_count_p1</span><span class="p">)</span>
+                    <span class="n">posx</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">col</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">posx</span> <span class="o">/</span> <span class="n">SQUARESIZE</span><span class="p">))</span>
+
+                    <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+                        <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+                        <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="k">global</span> <span class="n">turn_count</span>
+                            <span class="n">turn_count</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">turn_count_p1</span><span class="p">)</span>
+                            <span class="k">global</span> <span class="n">winner</span>
+                            <span class="n">winner</span> <span class="o">=</span> <span class="n">p1</span>
+                            <span class="n">winnercolor</span> <span class="o">=</span> <span class="n">colour_p1</span>
+                            <span class="n">label</span> <span class="o">=</span> <span class="n">myfont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">p1</span> <span class="o">+</span> <span class="s2">&quot; wins!!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">)</span>
+                            <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+                            <span class="n">game_over</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="c1"># Ask for Player 2 Input</span>
+                <span class="k">elif</span> <span class="n">turn</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="k">global</span> <span class="n">turn_count_p2</span>
+                    <span class="n">turn_count_p2</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">global</span> <span class="n">remaining_count_p2</span>
+
+                    <span class="n">remaining_count_p2</span> <span class="o">-=</span> <span class="mi">1</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">)</span>
+                    <span class="n">posx</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">col</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">posx</span> <span class="o">/</span> <span class="n">SQUARESIZE</span><span class="p">))</span>
+
+                    <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+                        <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+                        <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                            <span class="n">turn_count</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">turn_count_p2</span><span class="p">)</span>
+                            <span class="n">winner</span> <span class="o">=</span> <span class="n">p2</span>
+                            <span class="n">winnercolor</span> <span class="o">=</span> <span class="n">colour_p2</span>
+                            <span class="n">label</span> <span class="o">=</span> <span class="n">myfont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">p2</span> <span class="o">+</span> <span class="s2">&quot; wins!!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+                            <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+                            <span class="n">game_over</span> <span class="o">=</span> <span class="kc">True</span>
+
+                <span class="n">gl</span><span class="o">.</span><span class="n">print_board</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+                <span class="n">gl</span><span class="o">.</span><span class="n">draw_board</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">RADIUS</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+
+                <span class="n">turn</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">turn</span> <span class="o">=</span> <span class="n">turn</span> <span class="o">%</span> <span class="mi">2</span>
+
+                <span class="k">if</span> <span class="n">game_over</span><span class="p">:</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mi">2000</span><span class="p">)</span>
+                    <span class="n">scr_no</span> <span class="o">=</span> <span class="mi">3</span>
+                    <span class="n">screen_number</span> <span class="o">=</span> <span class="n">scr_no</span>
+
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEMOTION</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLACK</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">SQUARESIZE</span><span class="p">))</span>
+                <span class="n">posx</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">turn</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">628</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span><span class="mi">675</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">text_rem</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Remaining coins:&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem</span><span class="p">,</span> <span class="p">(</span><span class="mi">396</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p1</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">616</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">663</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span><span class="n">posx</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">RADIUS</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">628</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span><span class="mi">675</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">text_rem</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Remaining coins:&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem</span><span class="p">,</span> <span class="p">(</span><span class="mi">396</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p1</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">616</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">663</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span><span class="n">posx</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">RADIUS</span><span class="p">)</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="screen3">
+<a class="viewcode-back" href="../main.html#main.screen3">[docs]</a>
+<span class="k">def</span> <span class="nf">screen3</span><span class="p">():</span>  <span class="c1"># Win Screen</span>
+    <span class="k">global</span> <span class="n">winnercolor</span>
+    <span class="k">global</span> <span class="n">winner</span>  <span class="c1"># Declare winner as a global variable if it&#39;s not already passed as an argument</span>
+    <span class="n">text1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">winner</span> <span class="o">+</span> <span class="s1">&#39; wins!&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">winnercolor</span><span class="p">)</span>  <span class="c1"># Ensure winner is a string</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text1</span><span class="p">,</span> <span class="p">(</span><span class="mi">225</span><span class="p">,</span> <span class="mi">125</span><span class="p">))</span>
+    <span class="n">text2</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;CONGRATULATIONS!!&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text2</span><span class="p">,</span> <span class="p">(</span><span class="mi">225</span><span class="p">,</span> <span class="mi">150</span><span class="p">))</span>
+
+    <span class="c1"># Play again button</span>
+    <span class="n">menu_btn_again</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;dark gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">400</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Play again&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="mi">300</span><span class="p">,</span> <span class="mi">418</span><span class="p">))</span>
+
+    <span class="c1"># QUIT button</span>
+    <span class="n">menu_btn_quit</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;dark gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">300</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Quit&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="mi">325</span><span class="p">,</span> <span class="mi">318</span><span class="p">))</span>
+
+    <span class="c1"># MENU button</span>
+    <span class="n">menu_btn_menu</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;dark gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Menu&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="mi">325</span><span class="p">,</span> <span class="mi">218</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">menu_btn_quit</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">menu_btn_again</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">global</span> <span class="n">board</span>
+        <span class="k">global</span> <span class="n">game_over</span>
+        <span class="k">global</span> <span class="n">turn</span>
+        <span class="k">global</span> <span class="n">remaining_count_p1</span>
+        <span class="k">global</span> <span class="n">remaining_count_p2</span>
+        <span class="n">board</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">create_board</span><span class="p">()</span>
+        <span class="n">game_over</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">remaining_count_p1</span> <span class="o">=</span> <span class="mi">21</span>
+        <span class="n">remaining_count_p2</span> <span class="o">=</span> <span class="mi">21</span>
+
+        <span class="k">if</span> <span class="n">previous_screen</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">2</span>
+        <span class="k">elif</span> <span class="n">previous_screen</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">5</span>
+        <span class="k">elif</span> <span class="n">previous_screen</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">7</span>
+
+    <span class="k">if</span> <span class="n">menu_btn_menu</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="n">turn</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">remaining_count_p1</span> <span class="o">=</span> <span class="mi">21</span>
+        <span class="n">remaining_count_p2</span> <span class="o">=</span> <span class="mi">21</span>
+        <span class="n">board</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">create_board</span><span class="p">()</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="mi">3</span></div>
+
+
+
+<div class="viewcode-block" id="screen4">
+<a class="viewcode-back" href="../main.html#main.screen4">[docs]</a>
+<span class="k">def</span> <span class="nf">screen4</span><span class="p">():</span>  <span class="c1"># Single Player Menu</span>
+    <span class="k">global</span> <span class="n">previous_screen</span>
+    <span class="n">previous_screen</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">ai</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">error_message</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">while</span> <span class="n">ai</span><span class="p">:</span>
+        <span class="n">UI_REFRESH_RATE</span> <span class="o">=</span> <span class="n">CLOCK</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame_gui</span><span class="o">.</span><span class="n">UI_TEXT_ENTRY_FINISHED</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">ui_object_id</span> <span class="o">==</span> <span class="s2">&quot;#first_text_entry&quot;</span><span class="p">:</span>
+                <span class="k">global</span> <span class="n">p1</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame_gui</span><span class="o">.</span><span class="n">UI_TEXT_ENTRY_FINISHED</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">ui_object_id</span> <span class="o">==</span> <span class="s2">&quot;#second_text_entry&quot;</span><span class="p">:</span>
+                <span class="k">global</span> <span class="n">dif</span>
+                <span class="n">dif</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="n">MANAGER</span><span class="o">.</span><span class="n">process_events</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">UI_REFRESH_RATE</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">draw_ui</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span>
+        <span class="k">global</span> <span class="n">p2</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="s2">&quot;AI&quot;</span>
+        <span class="n">red_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">red_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">global</span> <span class="n">colour_p1</span>
+            <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">RED</span>
+
+        <span class="n">green_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">green_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">GREEN</span>
+
+        <span class="n">blue_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLUE</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blue_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">BLUE</span>
+
+        <span class="n">player1_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Enter Player 1 name: &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">player1_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">117</span><span class="p">))</span>
+        <span class="n">player1_enter</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;(and press ENTER) &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">player1_enter</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">147</span><span class="p">))</span>
+
+        <span class="n">dif_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Enter difficulty level:&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">dif_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">217</span><span class="p">))</span>
+        <span class="n">dif_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;(easy, medium, hard)&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">dif_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">247</span><span class="p">))</span>
+        <span class="n">dif_enter</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;(and press ENTER) &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">dif_enter</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">277</span><span class="p">))</span>
+
+        <span class="n">menu_btn</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;dark gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Start game&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="mi">295</span><span class="p">,</span> <span class="mi">517</span><span class="p">))</span>
+
+        <span class="n">menu_btn_menu</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;dark gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Back&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="mi">325</span><span class="p">,</span> <span class="mi">617</span><span class="p">))</span>
+
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">UI_REFRESH_RATE</span><span class="p">)</span>
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">draw_ui</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">error_message</span><span class="p">:</span>
+            <span class="n">error_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">error_message</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">RED</span><span class="p">)</span>
+            <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">error_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">317</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">menu_btn</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">dif</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;easy&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;hard&quot;</span><span class="p">]:</span>
+                <span class="n">error_message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Invalid difficulty level.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                 <span class="s2">&quot;Please enter &#39;easy&#39;, &#39;medium&#39;, or &#39;hard&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ai</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">menu_btn_menu</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">remaining_count_p1</span> <span class="o">=</span> <span class="mi">21</span>
+            <span class="n">remaining_count_p2</span> <span class="o">=</span> <span class="mi">21</span>
+            <span class="n">board</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">create_board</span><span class="p">()</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mi">5</span></div>
+
+
+
+<div class="viewcode-block" id="computer_move">
+<a class="viewcode-back" href="../main.html#main.computer_move">[docs]</a>
+<span class="k">def</span> <span class="nf">computer_move</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">dif</span>
+    <span class="k">global</span> <span class="n">turn_count</span>
+    <span class="k">global</span> <span class="n">winner</span>
+    <span class="k">global</span> <span class="n">winnercolor</span>
+    <span class="k">global</span> <span class="n">turn_count_p2</span>
+    <span class="k">global</span> <span class="n">remaining_count_p2</span>
+
+    <span class="k">if</span> <span class="n">dif</span> <span class="o">==</span> <span class="s2">&quot;easy&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Difficulty: Easy</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">turn_count_p2</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">remaining_count_p2</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">)</span>
+
+        <span class="n">col</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">COLUMN_COUNT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># Generate a random column</span>
+
+        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">elif</span> <span class="n">dif</span> <span class="o">==</span> <span class="s2">&quot;medium&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Difficulty: Medium</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">turn_count_p2</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">remaining_count_p2</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">)</span>
+
+        <span class="n">col</span> <span class="o">=</span> <span class="n">choose_medium_column</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+        <span class="n">valid_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">COLUMN_COUNT</span><span class="p">)</span> <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="ow">and</span> <span class="n">col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">valid_columns</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">elif</span> <span class="n">dif</span> <span class="o">==</span> <span class="s2">&quot;hard&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Difficulty: Hard</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">turn_count_p2</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">remaining_count_p2</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">)</span>
+
+        <span class="n">col</span><span class="p">,</span> <span class="n">minimax_score</span> <span class="o">=</span> <span class="n">minimax</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">valid_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">COLUMN_COUNT</span><span class="p">)</span> <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span> <span class="ow">and</span> <span class="n">col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">valid_columns</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="choose_medium_column">
+<a class="viewcode-back" href="../main.html#main.choose_medium_column">[docs]</a>
+<span class="k">def</span> <span class="nf">choose_medium_column</span><span class="p">(</span><span class="n">board</span><span class="p">):</span>
+    <span class="c1"># Check for potential winning moves</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">COLUMN_COUNT</span><span class="p">):</span>
+        <span class="n">temp_board</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">col</span>
+
+    <span class="c1"># Check for opponent&#39;s potential winning moves and block them</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">COLUMN_COUNT</span><span class="p">):</span>
+        <span class="n">temp_board</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">col</span>
+
+    <span class="c1"># If no winning or blocking move, choose a random valid column</span>
+    <span class="n">valid_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">COLUMN_COUNT</span><span class="p">)</span> <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">valid_columns</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="evaluate_board">
+<a class="viewcode-back" href="../main.html#main.evaluate_board">[docs]</a>
+<span class="k">def</span> <span class="nf">evaluate_board</span><span class="p">(</span><span class="n">board</span><span class="p">):</span>
+    <span class="c1"># Constants for weights</span>
+    <span class="n">WINNING_SCORE</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">BLOCKING_SCORE</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">TWO_IN_A_ROW_SCORE</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="n">ONE_IN_A_ROW_SCORE</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">score</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Check for winning moves</span>
+    <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>  <span class="c1"># Computer wins</span>
+        <span class="k">return</span> <span class="n">WINNING_SCORE</span>
+    <span class="k">elif</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>  <span class="c1"># Opponent wins</span>
+        <span class="k">return</span> <span class="o">-</span><span class="n">WINNING_SCORE</span>
+
+    <span class="c1"># Check for potential winning moves and blocking moves</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">COLUMN_COUNT</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ROW_COUNT</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># Empty space</span>
+                <span class="c1"># Check for potential winning move for the computer</span>
+                <span class="n">temp_board</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">board</span><span class="p">]</span>  <span class="c1"># Create a copy of the board</span>
+                <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                    <span class="n">score</span> <span class="o">+=</span> <span class="n">BLOCKING_SCORE</span>
+
+                <span class="c1"># Check for potential winning move for the opponent</span>
+                <span class="n">temp_board</span> <span class="o">=</span> <span class="p">[</span><span class="n">row</span><span class="p">[:]</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">board</span><span class="p">]</span>
+                <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">temp_board</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">score</span> <span class="o">-=</span> <span class="n">BLOCKING_SCORE</span>
+
+    <span class="c1"># Check for two in a row and one in a row for the computer</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">COLUMN_COUNT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ROW_COUNT</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">+=</span> <span class="n">TWO_IN_A_ROW_SCORE</span>
+            <span class="k">elif</span> <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">+=</span> <span class="n">ONE_IN_A_ROW_SCORE</span>
+
+    <span class="c1"># Check for two in a row and one in a row for the opponent</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">COLUMN_COUNT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ROW_COUNT</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">-=</span> <span class="n">TWO_IN_A_ROW_SCORE</span>
+            <span class="k">elif</span> <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">board</span><span class="p">[</span><span class="n">row</span><span class="p">][</span><span class="n">col</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">score</span> <span class="o">-=</span> <span class="n">ONE_IN_A_ROW_SCORE</span>
+
+    <span class="k">return</span> <span class="n">score</span></div>
+
+
+
+<div class="viewcode-block" id="minimax">
+<a class="viewcode-back" href="../main.html#main.minimax">[docs]</a>
+<span class="k">def</span> <span class="nf">minimax</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">maximizingPlayer</span><span class="p">):</span>
+    <span class="n">valid_locations</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_valid_locations</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+    <span class="n">is_terminal</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_terminal_node</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">depth</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">is_terminal</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_terminal</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">100000000000000</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="o">-</span><span class="mi">10000000000000</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># Game is over, no more valid moves</span>
+                <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># Depth is zero</span>
+            <span class="k">return</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">gl</span><span class="o">.</span><span class="n">score_position</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">maximizingPlayer</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="o">-</span><span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">valid_locations</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">valid_locations</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="n">b_copy</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">b_copy</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">new_score</span> <span class="o">=</span> <span class="n">minimax</span><span class="p">(</span><span class="n">b_copy</span><span class="p">,</span> <span class="n">depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">new_score</span> <span class="o">&gt;</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">new_score</span>
+                <span class="n">column</span> <span class="o">=</span> <span class="n">col</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">alpha</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">alpha</span> <span class="o">&gt;=</span> <span class="n">beta</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span>
+
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># Minimizing player</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">inf</span>
+        <span class="n">column</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">valid_locations</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">valid_locations</span><span class="p">:</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+            <span class="n">b_copy</span> <span class="o">=</span> <span class="n">board</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">b_copy</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">new_score</span> <span class="o">=</span> <span class="n">minimax</span><span class="p">(</span><span class="n">b_copy</span><span class="p">,</span> <span class="n">depth</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="kc">True</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">new_score</span> <span class="o">&lt;</span> <span class="n">value</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">new_score</span>
+                <span class="n">column</span> <span class="o">=</span> <span class="n">col</span>
+            <span class="n">beta</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">alpha</span> <span class="o">&gt;=</span> <span class="n">beta</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">return</span> <span class="n">column</span><span class="p">,</span> <span class="n">value</span></div>
+
+
+
+<div class="viewcode-block" id="screen5">
+<a class="viewcode-back" href="../main.html#main.screen5">[docs]</a>
+<span class="k">def</span> <span class="nf">screen5</span><span class="p">():</span>
+    <span class="n">gl</span><span class="o">.</span><span class="n">draw_board</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">RADIUS</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+    <span class="n">myfont</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">SysFont</span><span class="p">(</span><span class="s2">&quot;monospace&quot;</span><span class="p">,</span> <span class="mi">75</span><span class="p">)</span>
+    <span class="n">game_over</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">player1_turn</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Flag to track if it&#39;s Player 1&#39;s turn</span>
+
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">game_over</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">game_over</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">player1_turn</span><span class="p">:</span>  <span class="c1"># Player 1&#39;s turn</span>
+                    <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEBUTTONDOWN</span><span class="p">:</span>
+                        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLACK</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">SQUARESIZE</span><span class="p">))</span>
+                        <span class="n">posx</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="n">col</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">posx</span> <span class="o">/</span> <span class="n">SQUARESIZE</span><span class="p">))</span>
+                        <span class="k">global</span> <span class="n">remaining_count_p1</span>
+
+                        <span class="n">remaining_count_p1</span> <span class="o">-=</span> <span class="mi">1</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">remaining_count_p1</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+                            <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+                            <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+                            <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                                <span class="k">global</span> <span class="n">turn_count</span>
+                                <span class="n">turn_count</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">turn_count_p1</span><span class="p">)</span>
+                                <span class="k">global</span> <span class="n">winner</span><span class="p">,</span> <span class="n">winnercolor</span>
+                                <span class="n">winner</span> <span class="o">=</span> <span class="n">p1</span>
+                                <span class="n">winnercolor</span> <span class="o">=</span> <span class="n">colour_p1</span>
+                                <span class="n">label</span> <span class="o">=</span> <span class="n">myfont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">p1</span> <span class="o">+</span> <span class="s2">&quot; wins!!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">)</span>
+                                <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+                                <span class="n">game_over</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">player1_turn</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Switch to Computer&#39;s turn</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># Computer&#39;s turn</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">computer_move</span><span class="p">():</span>
+                        <span class="n">gl</span><span class="o">.</span><span class="n">print_board</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+                        <span class="n">gl</span><span class="o">.</span><span class="n">draw_board</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">RADIUS</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                            <span class="n">turn_count</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">turn_count_p2</span><span class="p">)</span>  <span class="c1"># Update the turn count for the computer</span>
+                            <span class="n">winner</span> <span class="o">=</span> <span class="n">p2</span>
+                            <span class="n">winnercolor</span> <span class="o">=</span> <span class="n">colour_p2</span>
+                            <span class="n">label</span> <span class="o">=</span> <span class="n">myfont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">p2</span> <span class="o">+</span> <span class="s2">&quot; wins!!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+                            <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+                            <span class="n">game_over</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">player1_turn</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Switch back to Player 1&#39;s turn</span>
+
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEMOTION</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLACK</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">SQUARESIZE</span><span class="p">))</span>
+                <span class="n">posx</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">player1_turn</span><span class="p">:</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">628</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span><span class="mi">675</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">text_rem</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Remaining coins:&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem</span><span class="p">,</span> <span class="p">(</span><span class="mi">396</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p1</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">616</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">663</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span><span class="n">posx</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">RADIUS</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">628</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span><span class="mi">675</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">text_rem</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Remaining coins:&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem</span><span class="p">,</span> <span class="p">(</span><span class="mi">396</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p1</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">616</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">663</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span><span class="n">posx</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">RADIUS</span><span class="p">)</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">game_over</span><span class="p">:</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># Wait for a moment to display the victory message</span>
+            <span class="k">return</span> <span class="mi">3</span><span class="p">,</span> <span class="n">winner</span><span class="p">,</span> <span class="n">winnercolor</span>  <span class="c1"># Transition to screen3</span>
+
+    <span class="k">return</span> <span class="mi">5</span></div>
+
+
+
+<div class="viewcode-block" id="screen6">
+<a class="viewcode-back" href="../main.html#main.screen6">[docs]</a>
+<span class="k">def</span> <span class="nf">screen6</span><span class="p">():</span>  <span class="c1"># Speech Recognition Single Player Menu</span>
+    <span class="k">global</span> <span class="n">previous_screen</span>
+    <span class="n">previous_screen</span> <span class="o">=</span> <span class="mi">7</span>
+    <span class="n">ai2</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">error_message</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">while</span> <span class="n">ai2</span><span class="p">:</span>
+        <span class="n">UI_REFRESH_RATE</span> <span class="o">=</span> <span class="n">CLOCK</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame_gui</span><span class="o">.</span><span class="n">UI_TEXT_ENTRY_FINISHED</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">ui_object_id</span> <span class="o">==</span> <span class="s2">&quot;#first_text_entry&quot;</span><span class="p">:</span>
+                <span class="k">global</span> <span class="n">p1</span>
+                <span class="n">p1</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame_gui</span><span class="o">.</span><span class="n">UI_TEXT_ENTRY_FINISHED</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">ui_object_id</span> <span class="o">==</span> <span class="s2">&quot;#second_text_entry&quot;</span><span class="p">:</span>
+                <span class="k">global</span> <span class="n">dif</span>
+                <span class="n">dif</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="n">MANAGER</span><span class="o">.</span><span class="n">process_events</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">UI_REFRESH_RATE</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">draw_ui</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span>
+        <span class="k">global</span> <span class="n">p2</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="s2">&quot;AI&quot;</span>
+        <span class="n">red_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">RED</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">red_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">global</span> <span class="n">colour_p1</span>
+            <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">RED</span>
+
+        <span class="n">green_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">GREEN</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">green_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">GREEN</span>
+
+        <span class="n">blue_p1</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLUE</span><span class="p">,</span> <span class="p">[</span><span class="mi">560</span><span class="p">,</span> <span class="mi">140</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">blue_p1</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">colour_p1</span> <span class="o">=</span> <span class="n">BLUE</span>
+
+        <span class="n">player1_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Enter Player 1 name: &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">player1_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">117</span><span class="p">))</span>
+        <span class="n">player1_enter</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;(and press ENTER) &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">player1_enter</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">147</span><span class="p">))</span>
+
+        <span class="n">dif_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Enter difficulty level:&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">dif_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">217</span><span class="p">))</span>
+        <span class="n">dif_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;(easy, medium, hard)&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">dif_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">247</span><span class="p">))</span>
+        <span class="n">dif_enter</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;(and press ENTER) &#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">YELLOW</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">dif_enter</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">277</span><span class="p">))</span>
+
+        <span class="n">menu_btn</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">350</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;dark gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">350</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Start game&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="mi">295</span><span class="p">,</span> <span class="mi">367</span><span class="p">))</span>
+
+        <span class="n">menu_btn_menu</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;light gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">450</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="s1">&#39;dark gray&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">230</span><span class="p">,</span> <span class="mi">450</span><span class="p">,</span> <span class="mi">260</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Back&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+        <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="mi">325</span><span class="p">,</span> <span class="mi">467</span><span class="p">))</span>
+
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">UI_REFRESH_RATE</span><span class="p">)</span>
+        <span class="n">MANAGER</span><span class="o">.</span><span class="n">draw_ui</span><span class="p">(</span><span class="n">screen</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">error_message</span><span class="p">:</span>
+            <span class="n">error_text</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">error_message</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">RED</span><span class="p">)</span>
+            <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">error_text</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">317</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">menu_btn</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">dif</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;easy&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;hard&quot;</span><span class="p">]:</span>
+                <span class="n">error_message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Invalid difficulty level.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                 <span class="s2">&quot;Please enter &#39;easy&#39;, &#39;medium&#39;, or &#39;hard&#39;.&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">ai2</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">menu_btn_menu</span><span class="o">.</span><span class="n">collidepoint</span><span class="p">(</span><span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pos</span><span class="p">())</span> <span class="ow">and</span> <span class="n">pygame</span><span class="o">.</span><span class="n">mouse</span><span class="o">.</span><span class="n">get_pressed</span><span class="p">()[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="n">turn</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">remaining_count_p1</span> <span class="o">=</span> <span class="mi">21</span>
+            <span class="n">remaining_count_p2</span> <span class="o">=</span> <span class="mi">21</span>
+            <span class="n">board</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">create_board</span><span class="p">()</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+    <span class="k">return</span> <span class="mi">7</span></div>
+
+
+
+<div class="viewcode-block" id="screen7">
+<a class="viewcode-back" href="../main.html#main.screen7">[docs]</a>
+<span class="k">def</span> <span class="nf">screen7</span><span class="p">():</span>  <span class="c1"># Single Player Game</span>
+    <span class="k">global</span> <span class="n">winner</span>
+    <span class="k">global</span> <span class="n">winnercolor</span>
+
+    <span class="n">gl</span><span class="o">.</span><span class="n">draw_board</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">RADIUS</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+    <span class="n">myfont</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">font</span><span class="o">.</span><span class="n">SysFont</span><span class="p">(</span><span class="s2">&quot;monospace&quot;</span><span class="p">,</span> <span class="mi">75</span><span class="p">)</span>
+    <span class="n">game_over</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">player1_turn</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Flag to track if it&#39;s Player 1&#39;s turn</span>
+
+    <span class="k">while</span> <span class="ow">not</span> <span class="n">game_over</span><span class="p">:</span>
+
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+                <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">game_over</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">player1_turn</span><span class="p">:</span>  <span class="c1"># Player 1&#39;s turn</span>
+                    <span class="n">col</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">speech_recognition_move</span><span class="p">(</span><span class="n">gl</span><span class="p">,</span> <span class="n">board</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">posx</span> <span class="o">=</span> <span class="n">col</span> <span class="o">*</span> <span class="n">SQUARESIZE</span>
+                        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">is_valid_location</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">):</span>
+                            <span class="n">row</span> <span class="o">=</span> <span class="n">gl</span><span class="o">.</span><span class="n">get_next_open_row</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">col</span><span class="p">)</span>
+                            <span class="n">gl</span><span class="o">.</span><span class="n">drop_piece</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">row</span><span class="p">,</span> <span class="n">col</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                            <span class="n">gl</span><span class="o">.</span><span class="n">print_board</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+                            <span class="n">gl</span><span class="o">.</span><span class="n">draw_board</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">RADIUS</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+
+                            <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+                                <span class="n">turn_count</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">turn_count_p1</span><span class="p">)</span>
+                                <span class="n">winner</span> <span class="o">=</span> <span class="n">p1</span>
+                                <span class="n">winnercolor</span> <span class="o">=</span> <span class="n">colour_p1</span>
+                                <span class="n">label</span> <span class="o">=</span> <span class="n">myfont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">p1</span> <span class="o">+</span> <span class="s2">&quot; wins!!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">)</span>
+                                <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+                                <span class="n">game_over</span> <span class="o">=</span> <span class="kc">True</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">player1_turn</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Switch to Computer&#39;s turn</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># Computer&#39;s turn</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">computer_move</span><span class="p">():</span>
+                        <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># Wait before dropping piece</span>
+                        <span class="n">gl</span><span class="o">.</span><span class="n">print_board</span><span class="p">(</span><span class="n">board</span><span class="p">)</span>
+                        <span class="n">gl</span><span class="o">.</span><span class="n">draw_board</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">RADIUS</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">gl</span><span class="o">.</span><span class="n">winning_move</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+                            <span class="n">turn_count</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">turn_count_p2</span><span class="p">)</span>  <span class="c1"># Update the turn count for the computer</span>
+                            <span class="n">winner</span> <span class="o">=</span> <span class="n">p2</span>
+                            <span class="n">winnercolor</span> <span class="o">=</span> <span class="n">colour_p2</span>
+                            <span class="n">label</span> <span class="o">=</span> <span class="n">myfont</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">p2</span> <span class="o">+</span> <span class="s2">&quot; wins!!&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">)</span>
+                            <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+                            <span class="n">game_over</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">player1_turn</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Switch back to Player 1&#39;s turn</span>
+
+            <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">MOUSEMOTION</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">BLACK</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">SQUARESIZE</span><span class="p">))</span>
+                <span class="n">posx</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">player1_turn</span><span class="p">:</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">628</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span><span class="mi">675</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">text_rem</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Remaining coins:&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem</span><span class="p">,</span> <span class="p">(</span><span class="mi">396</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p1</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">616</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">663</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span><span class="n">posx</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">RADIUS</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">628</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span><span class="mi">675</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span> <span class="n">RADIUS</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
+                    <span class="n">text_rem</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s1">&#39;Remaining coins:&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem</span><span class="p">,</span> <span class="p">(</span><span class="mi">396</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p1</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">616</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">text_rem_p1</span> <span class="o">=</span> <span class="n">font</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">remaining_count_p2</span><span class="p">),</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;black&#39;</span><span class="p">)</span>
+                    <span class="n">screen</span><span class="o">.</span><span class="n">blit</span><span class="p">(</span><span class="n">text_rem_p1</span><span class="p">,</span> <span class="p">(</span><span class="mi">663</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+                    <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">colour_p2</span><span class="p">,</span> <span class="p">(</span><span class="n">posx</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">SQUARESIZE</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">RADIUS</span><span class="p">)</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">game_over</span><span class="p">:</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>  <span class="c1"># Wait for a moment to display the victory message</span>
+            <span class="k">return</span> <span class="mi">3</span><span class="p">,</span> <span class="n">winner</span><span class="p">,</span> <span class="n">winnercolor</span>  <span class="c1"># Transition to screen3</span>
+
+    <span class="k">return</span> <span class="mi">7</span></div>
+
+
+<span class="n">run</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">while</span> <span class="n">run</span><span class="p">:</span>
+    <span class="n">screen</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="s1">&#39;black&#39;</span><span class="p">)</span>
+    <span class="n">timer</span><span class="o">.</span><span class="n">tick</span><span class="p">(</span><span class="n">fps</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">screen_number</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">screen_number</span> <span class="o">=</span> <span class="n">screen0</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">screen_number</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">screen_number</span> <span class="o">=</span> <span class="n">screen1</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">screen_number</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">screen_number</span> <span class="o">=</span> <span class="n">screen2</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">screen_number</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+        <span class="n">screen_number</span> <span class="o">=</span> <span class="n">screen4</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">screen_number</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+        <span class="n">screen_number</span> <span class="o">=</span> <span class="n">screen5</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">screen_number</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+        <span class="n">screen_number</span> <span class="o">=</span> <span class="n">screen6</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="n">screen_number</span> <span class="o">==</span> <span class="mi">7</span><span class="p">:</span>
+        <span class="n">screen_number</span> <span class="o">=</span> <span class="n">screen7</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">screen_number</span> <span class="o">=</span> <span class="n">screen3</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">pygame</span><span class="o">.</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">event</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="n">pygame</span><span class="o">.</span><span class="n">QUIT</span><span class="p">:</span>
+            <span class="n">run</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="n">pygame</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">flip</span><span class="p">()</span>
+
+<span class="n">pygame</span><span class="o">.</span><span class="n">quit</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Chris Douglas, Angelo Lim, Josh Sabio, Jeswin James.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
